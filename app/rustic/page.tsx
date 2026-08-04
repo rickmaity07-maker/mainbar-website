@@ -10,7 +10,7 @@ export default function HomeRustic() {
     subtitle: lang === 'de' ? 'Kaffee & Handgemachtes' : 'Coffee & Handmade Goods',
     menu: lang === 'de' ? 'Unsere Speisekarte' : 'Our Menu',
     gallery: lang === 'de' ? 'Erinnerungen' : 'Memories',
-    visit: lang === 'de' ? 'Komm Vorbei' : 'Come By',
+    visit: lang === 'de' ? 'Komm Vorbei' : 'Visit Us',
     welcome: lang === 'de' ? 'Willkommen Zuhause.' : 'Welcome Home.',
     quote: lang === 'de' ? 'Mit Liebe gebacken, mit Herz serviert.' : 'Baked with love, served with heart.',
   };
@@ -39,13 +39,16 @@ export default function HomeRustic() {
           {t.welcome} <br/> {t.quote}
         </p>
 
+        {/* Now includes all three navigation buttons pointing to the rustic routes */}
         <div className="flex flex-col sm:flex-row gap-6 w-full max-w-2xl justify-center font-sans">
-          {/* NOTICE: Links are updated to point to /rustic/... */}
           <Link href="/rustic/menu" className="bg-[#C07F67] text-[#F9F6F0] px-8 py-4 rounded-full uppercase tracking-wider text-sm font-semibold hover:bg-[#A86A55] transition-all shadow-md transform hover:-translate-y-1">
             {t.menu}
           </Link>
           <Link href="/rustic/gallery" className="bg-transparent border-2 border-[#C07F67] text-[#C07F67] px-8 py-4 rounded-full uppercase tracking-wider text-sm font-semibold hover:bg-[#C07F67] hover:text-[#F9F6F0] transition-all">
             {t.gallery}
+          </Link>
+          <Link href="/rustic/contact" className="bg-[#5C4033] text-[#F9F6F0] px-8 py-4 rounded-full uppercase tracking-wider text-sm font-semibold hover:bg-[#4A332A] transition-all shadow-md transform hover:-translate-y-1">
+            {t.visit}
           </Link>
         </div>
       </div>
