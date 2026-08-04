@@ -1,24 +1,29 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { LanguageProvider } from './context/LanguageContext';
-import LanguageToggle from './components/LanguageToggle';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { LanguageProvider } from "./context/LanguageContext";
+// 1. Import the new switch component
+import TemplateSwitcher from "./components/TemplateSwitcher";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'MainBar | drinks & food',
-  description: 'Willkommen in der Mainbar - Bei uns ist Qualität das Produkt der Liebe zum Detail.',
+  title: "MainBar Schweinfurt",
+  description: "Cafe • Bar • Lebensart",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="de">
-      <body>
+      <body className={inter.className}>
         <LanguageProvider>
-          <LanguageToggle />
           {children}
+          {/* 2. Add the switch so it renders globally */}
+          <TemplateSwitcher />
         </LanguageProvider>
       </body>
     </html>
