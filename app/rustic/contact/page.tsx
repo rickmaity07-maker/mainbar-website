@@ -72,18 +72,18 @@ export default function RusticContact() {
             
           </div>
 
-          {/* Location Visual / Map Placeholder */}
-          <div className="relative h-full min-h-[400px] rounded-3xl overflow-hidden shadow-md border border-[#E8E0D5] bg-[#E8E0D5] flex flex-col items-center justify-center p-8 text-center">
-             
-             {/* Map Icon */}
-             <svg className="w-20 h-20 text-[#C07F67] mb-6 drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z" />
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-             </svg>
-             
-             <p className="text-[#7D6B5D] italic text-xl">
-               "Mitten im Herzen von Schweinfurt."
-             </p>
+          {/* Perfectly Pinned Google Map Embed */}
+          <div className="relative h-full min-h-[420px] rounded-3xl overflow-hidden shadow-md border border-[#E8E0D5] bg-white">
+             <iframe 
+               title="MainBar Location Map"
+               src="https://maps.google.com/maps?q=Spitalstrasse%2019,%2097421%20Schweinfurt&t=&z=16&ie=UTF8&iwloc=&output=embed"
+               width="100%" 
+               height="100%" 
+               style={{ border: 0, minHeight: '420px' }} 
+               allowFullScreen={false} 
+               loading="lazy" 
+               referrerPolicy="no-referrer-when-downgrade"
+             ></iframe>
           </div>
           
         </div>
