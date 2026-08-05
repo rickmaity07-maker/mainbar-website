@@ -25,7 +25,7 @@ export default function TemplateSwitcher() {
   };
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[999]">
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-999">
       <button 
         onClick={toggleTemplate}
         className="flex items-center gap-3 bg-black/80 backdrop-blur-md text-white px-5 py-3 rounded-full shadow-2xl text-xs font-bold uppercase tracking-widest border border-white/20 hover:scale-105 transition-all"
