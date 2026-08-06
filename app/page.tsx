@@ -177,10 +177,9 @@ export default function Home() {
           </div>
         </div>
         
-        {/* --- THE SECRET ADMIN TRIGGER --- */}
-        {/* Invisible 16x16 block fixed at the bottom right of the screen */}
+       {/* --- THE SECRET ADMIN TRIGGER --- */}
         <div 
-          onClick={() => router.push('/mb-vault-892')} 
+          onClick={() => router.push('/mb-vault-m892')} 
           className="fixed bottom-0 right-0 w-16 h-16 z-[200] opacity-0 cursor-default"
           title=" "
         ></div>

@@ -87,13 +87,12 @@ export default function HomeRustic() {
         Spitalstrasse 19 • 97421 Schweinfurt • +49 170 2278096
       </footer>
 
-      {/* --- THE SECRET ADMIN TRIGGER --- */}
-      {/* Invisible 16x16 block fixed at the bottom right of the screen */}
-      <div 
-        onClick={() => router.push('/mb-vault-892')} 
-        className="fixed bottom-0 right-0 w-16 h-16 z-[200] opacity-0 cursor-default"
-        title=" "
-      ></div>
+     {/* --- THE SECRET ADMIN TRIGGER --- */}
+        <div 
+          onClick={() => router.push('/mb-vault-m892')} 
+          className="fixed bottom-0 right-0 w-16 h-16 z-[200] opacity-0 cursor-default"
+          title=" "
+        ></div>
 
     </main>
   );
