@@ -2,51 +2,79 @@
 
 import Link from 'next/link';
 import { useLanguage } from '../../context/LanguageContext';
+import { useState } from 'react';
 
 export default function RusticGallery() {
   const { lang } = useLanguage();
+  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
   
   const t = {
-    title: lang === 'de' ? 'Galerie' : 'Gallery',
-    subtitle: lang === 'de' ? 'Eindrücke aus der Mainbar' : 'Moments from Mainbar',
-    back: lang === 'de' ? 'Zur Startseite' : 'Back Home',
-    instaText: lang === 'de' ? 'Folgen Sie uns auf Instagram für mehr' : 'Follow us on Instagram for more',
+    title: lang === 'de' ? 'Erinnerungen' : 'Memories',
+    back: lang === 'de' ? 'Zurück nach Hause' : 'Back Home',
   };
 
-  const mediaItems = [
-    { id: 1, type: 'image', src: '1.jpg' },
-    { id: 2, type: 'video', src: '2.mp4' },
-    { id: 3, type: 'image', src: '3.jpg' },
-    { id: 4, type: 'video', src: '4.mp4' },
-    { id: 5, type: 'image', src: '5.jpg' },
-    { id: 6, type: 'image', src: '6.jpg' },
+  // 9 Images with mathematically forced dimensions to perfectly balance a 3-column layout
+  const images = [
+    "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&h=600&fit=crop", // Landscape
+    "https://images.unsplash.com/photo-1445116572660-236099ec97a0?q=80&w=600&h=800&fit=crop", // Portrait
+    "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=800&h=600&fit=crop", // Landscape
+    "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=600&h=800&fit=crop", // Portrait
+    "https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?q=80&w=800&h=600&fit=crop", // Landscape
+    "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&h=800&fit=crop", // Portrait
+    "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=800&h=600&fit=crop", // Landscape
+    "https://images.unsplash.com/photo-1525610553991-2bede1a236e2?q=80&w=600&h=800&fit=crop", // Portrait
+    "https://images.unsplash.com/photo-1498804103079-a6351b050096?q=80&w=800&h=600&fit=crop", // Landscape
   ];
 
-  return (
-    <main className="min-h-screen bg-[#F9F6F0] text-[#5C4033] p-6 md:p-12 font-serif">
-      <div className="max-w-6xl mx-auto">
-        <header className="flex flex-col md:flex-row justify-between items-center mb-12 pb-6 border-b border-[#E8E0D5]">
-          <div className="text-center md:text-left mb-6 md:mb-0">
-            <h1 className="text-5xl font-medium tracking-wide text-[#4A332A]">{t.title}</h1>
-            <p className="text-sm text-[#C07F67] uppercase tracking-widest mt-2">{t.subtitle}</p>
-          </div>
-          <Link href="/rustic" className="text-sm uppercase tracking-widest text-[#C07F67] border-2 border-[#C07F67] rounded-full px-6 py-2 hover:bg-[#C07F67] hover:text-[#F9F6F0] transition-colors font-sans font-semibold">
-            &larr; {t.back}
-          </Link>
-        </header>
+  const openLightbox = (index: number) => setCurrentIndex(index);
+  const closeLightbox = () => setCurrentIndex(null);
+  const nextImage = (e: React.MouseEvent) => { e.stopPropagation(); if (currentIndex !== null) setCurrentIndex((currentIndex + 1) % images.length); };
+  const prevImage = (e: React.MouseEvent) => { e.stopPropagation(); if (currentIndex !== null) setCurrentIndex((currentIndex - 1 + images.length) % images.length); };
 
-        <div className="columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6">
-          {mediaItems.map((item) => (
-            <div key={item.id} className="break-inside-avoid overflow-hidden rounded-xl shadow-lg group relative bg-white p-2">
-              {item.type === 'image' ? (
-                <img src={`/gallery/${item.src}`} className="w-full h-auto object-cover rounded-lg" style={{ minHeight: item.id % 2 === 0 ? '300px' : '450px' }} />
-              ) : (
-                <video src={`/gallery/${item.src}`} autoPlay loop muted playsInline className="w-full h-auto object-cover rounded-lg" style={{ minHeight: item.id % 2 === 0 ? '300px' : '450px' }} />
-              )}
+  return (
+    <main className="min-h-screen bg-[#F9F6F0] text-[#5C4033] font-serif p-6 md:p-12 overflow-x-hidden relative pb-24">
+      
+      <style>{`
+        @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+        .animate-fade-up { animation: fade-in-up 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0; }
+      `}</style>
+      
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 animate-fade-up" style={{ animationDelay: '100ms' }}>
+          <div className="flex items-center gap-4">
+            <div className="h-px w-8 bg-[#C07F67] hidden sm:block"></div>
+            <h1 className="text-4xl md:text-5xl font-medium tracking-wide text-[#4A332A] text-center">{t.title}</h1>
+            <div className="h-px w-8 bg-[#C07F67] hidden sm:block"></div>
+          </div>
+          <Link href="/rustic" className="text-xs md:text-sm tracking-widest uppercase font-sans font-semibold text-[#C07F67] hover:text-[#A86A55] transition-colors border-b-2 border-transparent hover:border-[#A86A55]">
+            {t.back}
+          </Link>
+        </div>
+        
+        {/* Masonry Image Grid */}
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+          {images.map((src, idx) => (
+            <div 
+              key={idx} 
+              onClick={() => openLightbox(idx)}
+              className="group overflow-hidden rounded-xl shadow-md animate-fade-up bg-white p-2 cursor-pointer break-inside-avoid" 
+              style={{ animationDelay: `${300 + (idx * 100)}ms` }}
+            >
+              <img src={src} alt={`MainBar Rustic Cafe ${idx + 1}`} className="w-full h-auto object-cover rounded-lg transform transition-transform duration-700 group-hover:scale-[1.03]" />
             </div>
           ))}
         </div>
       </div>
+
+      {/* Fullscreen Lightbox Overlay */}
+      {currentIndex !== null && (
+        <div className="fixed inset-0 z-[100] bg-[#4A332A]/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-12" onClick={closeLightbox}>
+          <button onClick={closeLightbox} className="absolute top-6 right-8 text-[#F9F6F0] text-4xl hover:text-[#C07F67] transition-colors">&times;</button>
+          <button onClick={prevImage} className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 text-[#F9F6F0] text-5xl md:text-7xl hover:text-[#C07F67] p-4 transition-colors">&#8249;</button>
+          <img src={images[currentIndex]} alt="Expanded View" className="max-h-[85vh] max-w-full object-contain rounded-sm shadow-2xl border-4 border-[#F9F6F0]" onClick={(e) => e.stopPropagation()} />
+          <button onClick={nextImage} className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 text-[#F9F6F0] text-5xl md:text-7xl hover:text-[#C07F67] p-4 transition-colors">&#8250;</button>
+        </div>
+      )}
     </main>
   );
 }

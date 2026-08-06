@@ -1,15 +1,16 @@
 "use client";
-
+import MainBarLogo from './components/MainBarLogo';
 import Link from 'next/link';
 import { useLanguage } from './context/LanguageContext';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; 
 
 // We put this OUTSIDE the component. 
-// It resets to false when you refresh the page, but stays true when navigating via links!
 let animationPlayed = false;
 
 export default function Home() {
   const { lang } = useLanguage();
+  const router = useRouter(); // <-- Router initialized here
   
   // Initialize loading based on whether the animation has played yet
   const [loading, setLoading] = useState(!animationPlayed);
@@ -106,7 +107,7 @@ export default function Home() {
                 {/* Animated Coffee Stream */}
                 <div className="absolute top-12 left-[3.2rem] w-2 h-20 bg-[#3a3340] rounded-full animate-pour z-10"></div>
 
-                {/* Dynamic Rising Steam (Delays are set so it only rises after coffee is poured) */}
+                {/* Dynamic Rising Steam */}
                 <div className="absolute bottom-20 left-6 w-5 h-5 bg-gray-400 rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 2s ease-in infinite', animationDelay: '1.8s' }}></div>
                 <div className="absolute bottom-20 left-12 w-6 h-6 bg-gray-400 rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 2.2s ease-in infinite', animationDelay: '2.1s' }}></div>
                 <div className="absolute bottom-20 left-16 w-4 h-4 bg-gray-400 rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 1.8s ease-in infinite', animationDelay: '2.4s' }}></div>
@@ -125,46 +126,65 @@ export default function Home() {
       )}
 
       {/* Main Content Area */}
-      <main className="min-h-screen flex flex-col md:flex-row font-sans relative">
-        <div className="w-full md:w-1/2 bg-[#7a6c82] text-[#fcfbf9] flex flex-col items-center justify-center p-12 text-center relative">
+      <main className="min-h-[100svh] flex flex-col md:flex-row font-sans relative overflow-x-hidden">
+        
+        {/* Left Side (Purple Theme) */}
+        <div className="w-full md:w-1/2 bg-[#7a6c82] text-[#fcfbf9] flex flex-col items-center justify-center p-6 sm:p-10 md:p-12 text-center relative min-h-[50svh] md:min-h-screen">
           
-          <h1 className="text-6xl md:text-8xl font-light tracking-widest mb-4 font-serif">MainBar</h1>
-          <p className="text-xl tracking-[0.3em] uppercase text-[#dcd6df] mb-12">{t.subtitle}</p>
+          <div className="mb-2 md:mb-4 mt-8 md:mt-0">
+            <MainBarLogo textColor="text-[#fcfbf9]" ringColor="border-[#dcd6df]" />
+          </div>
           
-          <div className="flex flex-col sm:flex-row gap-6 mt-4 mb-10 w-full max-w-md">
-            <Link href="/menu" className="border-2 border-[#fcfbf9] text-[#fcfbf9] px-6 py-4 uppercase tracking-[0.2em] font-bold hover:bg-white hover:text-[#7a6c82] transition-colors shadow-lg flex-1">
+          <p className="text-sm sm:text-base md:text-xl tracking-[0.2em] md:tracking-[0.3em] uppercase text-[#dcd6df] mb-8 md:mb-12 px-4">{t.subtitle}</p>
+          
+          {/* Buttons: Stack on mobile, side-by-side on desktop */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-2 mb-8 md:mb-10 w-full max-w-xs sm:max-w-md">
+            <Link href="/menu" className="border-2 border-[#fcfbf9] text-[#fcfbf9] px-4 py-3 md:px-6 md:py-4 uppercase tracking-[0.15em] md:tracking-[0.2em] text-xs md:text-sm font-bold hover:bg-white hover:text-[#7a6c82] transition-colors shadow-lg flex-1">
               {t.menu}
             </Link>
-            <Link href="/contact" className="border-2 border-[#fcfbf9] text-[#fcfbf9] px-6 py-4 uppercase tracking-[0.2em] font-bold hover:bg-white hover:text-[#7a6c82] transition-colors shadow-lg flex-1">
+            <Link href="/contact" className="border-2 border-[#fcfbf9] text-[#fcfbf9] px-4 py-3 md:px-6 md:py-4 uppercase tracking-[0.15em] md:tracking-[0.2em] text-xs md:text-sm font-bold hover:bg-white hover:text-[#7a6c82] transition-colors shadow-lg flex-1">
               {t.visit}
             </Link>
           </div>
 
-          <div className="mt-8 border-t border-[#9b8d9f] pt-8 w-full max-w-sm">
-            <p className="text-sm uppercase tracking-widest text-[#dcd6df] mb-3">{t.reserve}</p>
-            <a href="tel:+491702278096" className="text-2xl font-light tracking-wider hover:text-white transition-colors">
+          <div className="mt-4 md:mt-8 border-t border-[#9b8d9f] pt-6 md:pt-8 w-full max-w-xs sm:max-w-sm mb-16 md:mb-0">
+            <p className="text-xs md:text-sm uppercase tracking-widest text-[#dcd6df] mb-2 md:mb-3">{t.reserve}</p>
+            <a href="tel:+491702278096" className="text-xl md:text-2xl font-light tracking-wider hover:text-white transition-colors">
               +49 170 2278096
             </a>
           </div>
 
-          <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 z-40">
-            <Link href="/gallery" className="flex items-center gap-4 text-[#fcfbf9] hover:text-gray-300 transition-colors uppercase tracking-widest text-sm font-bold group">
-              <span className="w-8 h-[2px] bg-[#fcfbf9] group-hover:w-16 transition-all duration-500 ease-in-out"></span>
+          <div className="absolute bottom-6 left-6 md:bottom-12 md:left-12 z-40">
+            <Link href="/gallery" className="flex items-center gap-3 md:gap-4 text-[#fcfbf9] hover:text-gray-300 transition-colors uppercase tracking-widest text-xs md:text-sm font-bold group">
+              <span className="w-6 md:w-8 h-[2px] bg-[#fcfbf9] group-hover:w-12 md:group-hover:w-16 transition-all duration-500 ease-in-out"></span>
               {t.gallery}
             </Link>
           </div>
         </div>
         
-        <div className="w-full md:w-1/2 bg-[#fcfbf9] text-[#7a6c82] flex flex-col justify-center items-center md:items-start p-12 md:p-24">
-          <h2 className="text-2xl font-medium mb-4 uppercase tracking-widest text-center md:text-left">{t.welcome}</h2>
-          <p className="italic text-gray-500 mb-10 text-center md:text-left">{t.quote}</p>
+        {/* Right Side (Light Theme / Acrostic) */}
+        <div className="w-full md:w-1/2 bg-[#fcfbf9] text-[#7a6c82] flex flex-col justify-center items-center md:items-start p-8 sm:p-12 md:p-24 min-h-[50svh] md:min-h-screen">
+          <h2 className="text-xl md:text-2xl font-medium mb-3 md:mb-4 uppercase tracking-widest text-center md:text-left">{t.welcome}</h2>
+          <p className="italic text-gray-500 mb-8 md:mb-10 text-center md:text-left text-sm md:text-base">{t.quote}</p>
           
-          <div className="space-y-2 text-lg tracking-wider text-gray-700">
+          <div className="space-y-2 text-base md:text-lg tracking-wider text-gray-700">
             {acrostic.map((item, i) => (
-              <p key={i}><strong className="text-[#7a6c82] text-2xl font-bold pr-4">{item.l}</strong>{lang === 'de' ? item.de : item.en}</p>
+              <p key={i}>
+                <strong className="text-[#7a6c82] text-xl md:text-2xl font-bold pr-3 md:pr-4">{item.l}</strong>
+                {lang === 'de' ? item.de : item.en}
+              </p>
             ))}
           </div>
         </div>
+        
+        {/* --- THE SECRET ADMIN TRIGGER --- */}
+        {/* Invisible 16x16 block fixed at the bottom right of the screen */}
+        <div 
+          onClick={() => router.push('/mb-vault-892')} 
+          className="fixed bottom-0 right-0 w-16 h-16 z-[200] opacity-0 cursor-default"
+          title=" "
+        ></div>
+
       </main>
     </>
   );
