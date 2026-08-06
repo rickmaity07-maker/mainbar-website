@@ -33,197 +33,116 @@ export default function Home() {
     reserve: lang === 'de' ? 'Tischreservierung' : 'Table Reservation',
     welcome: lang === 'de' ? 'Willkommen in der Mainbar' : 'Welcome to Mainbar',
     quote: lang === 'de' ? '"Bei uns ist Qualität das Produkt der Liebe zum Detail."' : '"With us, quality is the product of attention to detail."',
-    featuredTitle: lang === 'de' ? 'Süße Versuchungen' : 'Sweet Temptations',
-    featuredMenu: [
+    
+    // Expanded Visual Menu with Images for EVERYTHING
+    menuCategories: [
       {
-        name: lang === 'de' ? 'Beeren-Tarte' : 'Berry Tart',
-        desc: lang === 'de' ? 'Frische Beeren auf zarter Vanillecreme.' : 'Fresh berries on delicate vanilla custard.',
-        price: '€ 5.50',
-        img: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=800&auto=format&fit=crop'
+        title: lang === 'de' ? 'Hausgemachte Gebäck' : 'House Pastries',
+        items: [
+          { name: lang === 'de' ? 'Beeren-Tarte' : 'Berry Tart', price: '€ 5.50', img: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=800&auto=format&fit=crop' },
+          { name: lang === 'de' ? 'Macaron Variation' : 'Macaron Assortment', price: '€ 6.20', img: 'https://images.unsplash.com/photo-1569864358642-9d1684040f43?q=80&w=800&auto=format&fit=crop' },
+          { name: lang === 'de' ? 'Butter Croissant' : 'Butter Croissant', price: '€ 3.50', img: 'https://images.unsplash.com/photo-1555507036-ab1e4006aaeb?q=80&w=800&auto=format&fit=crop' },
+          { name: lang === 'de' ? 'Schokoladenkuchen' : 'Chocolate Cake', price: '€ 4.90', img: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=800&auto=format&fit=crop' }
+        ]
       },
       {
-        name: lang === 'de' ? 'Rosen-Latte' : 'Rose Vanilla Latte',
-        desc: lang === 'de' ? 'Espresso, aufgeschäumte Milch & Rosensirup.' : 'Espresso, steamed milk & rose syrup.',
-        price: '€ 4.80',
-        img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800&auto=format&fit=crop'
-      },
-      {
-        name: lang === 'de' ? 'Macaron Variation' : 'Macaron Assortment',
-        desc: lang === 'de' ? 'Handgemachte französische Macarons.' : 'Handcrafted French macarons.',
-        price: '€ 6.20',
-        img: 'https://images.unsplash.com/photo-1569864358642-9d1684040f43?q=80&w=800&auto=format&fit=crop'
+        title: lang === 'de' ? 'Heiße Klassiker' : 'Hot Classics',
+        items: [
+          { name: lang === 'de' ? 'Rosen-Latte' : 'Rose Vanilla Latte', price: '€ 4.80', img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800&auto=format&fit=crop' },
+          { name: lang === 'de' ? 'Cappuccino' : 'Cappuccino', price: '€ 3.80', img: 'https://images.unsplash.com/photo-1572442388796-11668a67ef46?q=80&w=800&auto=format&fit=crop' },
+          { name: lang === 'de' ? 'Matcha Latte' : 'Matcha Latte', price: '€ 4.50', img: 'https://images.unsplash.com/photo-1515823662972-da6a2e4d3002?q=80&w=800&auto=format&fit=crop' },
+          { name: lang === 'de' ? 'Flat White' : 'Flat White', price: '€ 4.20', img: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=800&auto=format&fit=crop' }
+        ]
       }
     ]
   };
-
-  const acrostic = [
-    { l: "L", de: "ebenstraum", en: "ifelong dream" }, 
-    { l: "E", de: "inzigartig", en: "xceptional" }, 
-    { l: "I", de: "mmerfrisch", en: "lways fresh" },
-    { l: "D", de: "uftender Kaffee", en: "elicious coffee" }, 
-    { l: "E", de: "rfolgsrezepte", en: "xquisite recipes" }, 
-    { l: "N", de: "achhaltigkeit", en: "atural sustainability" },
-    { l: "S", de: "elbstgebacken", en: "cratch-baked" }, 
-    { l: "C", de: "harismatisch", en: "harismatic" }, 
-    { l: "H", de: "erzlichkeit", en: "eartfelt warmth" },
-    { l: "A", de: "nders", en: "lways different" }, 
-    { l: "F", de: "amilienbetrieb", en: "amily business" }, 
-    { l: "T", de: "alentschmiede", en: "alent forge" }
-  ];
 
   return (
     <>
       {loading && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#FAF7F5] transition-opacity duration-[800ms] ease-in-out"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#F9FAFB] transition-opacity duration-[800ms] ease-in-out"
           style={{ opacity: explode ? 0 : 1, pointerEvents: explode ? 'none' : 'auto' }}
         >
-          <style>{`
-            .animate-pour { animation: pour 2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-            .animate-fill { animation: fill 2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-            .animate-tilt { animation: tilt 2s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-            
-            @keyframes pour {
-              0% { transform: scaleY(0); transform-origin: top; opacity: 0; }
-              15% { transform: scaleY(1); transform-origin: top; opacity: 1; }
-              85% { transform: scaleY(1); transform-origin: top; opacity: 1; }
-              100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
-            }
-            @keyframes fill {
-              0%, 15% { transform: scaleY(0); }
-              85%, 100% { transform: scaleY(1); }
-            }
-            @keyframes tilt {
-              0%, 100% { transform: rotate(0deg); }
-              15%, 85% { transform: rotate(-30deg); }
-            }
-            @keyframes steam-rise {
-              0% { transform: translateY(0) scale(1); opacity: 0; }
-              20% { opacity: 0.5; }
-              100% { transform: translateY(-80px) scale(2.5); opacity: 0; }
-            }
-          `}</style>
-          
-          <div 
-            className="relative flex items-center justify-center w-full h-full transition-transform duration-[1000ms] ease-in-out"
-            style={{ transform: explode ? 'scale(80)' : 'scale(1)' }}
-          >
-             <div className="relative w-48 h-48">
-                <div className="absolute top-0 right-4 w-20 h-20 text-[#DCAFB3] animate-tilt origin-bottom-left z-20">
-                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.5">
-                     <path d="M8 3v2M12 3v2M16 3v2M5 10c0-2.2 1.8-4 4-4h6c2.2 0 4 1.8 4 4v7c0 2.2-1.8 4-4 4H9c-2.2 0-4-1.8-4-4v-7z" fill="none"/>
-                     <path d="M19 12h2a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-2" fill="none"/>
-                     <path d="M5 12H2L4 7h1" fill="none"/>
-                  </svg>
-                </div>
-                <div className="absolute top-12 left-[3.2rem] w-2 h-20 bg-[#8A6F78] rounded-full animate-pour z-10"></div>
-                <div className="absolute bottom-20 left-6 w-5 h-5 bg-[#DCAFB3] rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 2s ease-in infinite', animationDelay: '1.8s' }}></div>
-                <div className="absolute bottom-20 left-12 w-6 h-6 bg-[#DCAFB3] rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 2.2s ease-in infinite', animationDelay: '2.1s' }}></div>
-                <div className="absolute bottom-20 left-16 w-4 h-4 bg-[#DCAFB3] rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 1.8s ease-in infinite', animationDelay: '2.4s' }}></div>
-                <div className="absolute bottom-4 left-4 w-20 h-16 border-4 border-[#DCAFB3] rounded-b-xl z-20 overflow-hidden bg-[#FAF7F5]">
-                  <div className="absolute bottom-0 left-0 w-full h-full bg-[#DCAFB3] origin-bottom animate-fill"></div>
-                </div>
-                <div className="absolute bottom-6 left-[5.5rem] w-6 h-8 border-4 border-l-0 border-[#DCAFB3] rounded-r-full z-10"></div>
-             </div>
+          {/* Loader keeps the rose theme */}
+          <div className="relative flex items-center justify-center w-full h-full transition-transform duration-[1000ms] ease-in-out" style={{ transform: explode ? 'scale(80)' : 'scale(1)' }}>
+             <div className="w-16 h-16 border-4 border-[#E5E7EB] border-t-[#C89FA3] rounded-full animate-spin"></div>
           </div>
         </div>
       )}
 
-      {/* Main Scrollable Area */}
-      <main className="min-h-screen flex flex-col font-sans bg-[#FAF7F5] overflow-x-hidden text-[#4A333E]">
+      {/* Main Area: Ash Gray Background, Slate Gray Text */}
+      <main className="min-h-screen flex flex-col font-sans bg-[#F9FAFB] overflow-x-hidden text-[#4B5563]">
         
-        {/* --- HERO SPLIT SECTION --- */}
-        <div className="min-h-[100svh] flex flex-col md:flex-row relative">
+        {/* --- HERO IMAGE GRID SECTION --- */}
+        <div className="min-h-[90svh] flex flex-col md:flex-row relative bg-[#374151]">
           
-          {/* Left Side (Blush Pink Theme) */}
-          <div className="w-full md:w-1/2 bg-[#DCAFB3] text-[#FAF7F5] flex flex-col items-center justify-center p-6 sm:p-10 md:p-12 text-center relative min-h-[50svh] md:min-h-screen">
+          {/* Left Side: Dark Slate Gray */}
+          <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 md:p-12 text-center relative z-10 text-[#F9FAFB]">
+            <MainBarLogo textColor="text-[#C89FA3]" ringColor="border-[#C89FA3]" />
+            <p className="text-sm md:text-xl font-serif tracking-[0.3em] uppercase text-[#9CA3AF] mb-12 px-4 mt-6">{t.subtitle}</p>
             
-            <div className="mb-2 md:mb-4 mt-8 md:mt-0">
-              <MainBarLogo textColor="text-[#FAF7F5]" ringColor="border-[#FAF7F5]" />
-            </div>
-            
-            <p className="text-sm sm:text-base md:text-xl font-serif tracking-[0.2em] md:tracking-[0.3em] uppercase text-[#F9E8EA] mb-8 md:mb-12 px-4">{t.subtitle}</p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-2 mb-8 md:mb-10 w-full max-w-xs sm:max-w-md">
-              <Link href="/menu" className="border border-[#FAF7F5] bg-transparent text-[#FAF7F5] px-4 py-3 md:px-6 md:py-4 uppercase tracking-[0.15em] md:tracking-[0.2em] text-xs md:text-sm hover:bg-[#FAF7F5] hover:text-[#DCAFB3] transition-colors shadow-sm rounded-full flex-1">
+            <div className="flex gap-4 sm:gap-6 mt-2 mb-10 w-full max-w-sm">
+              <Link href="/menu" className="bg-[#C89FA3] text-white px-6 py-4 uppercase tracking-[0.2em] text-xs md:text-sm hover:bg-[#A67B80] transition-colors rounded-full flex-1 shadow-lg">
                 {t.menu}
               </Link>
-              <Link href="/contact" className="border border-[#FAF7F5] bg-transparent text-[#FAF7F5] px-4 py-3 md:px-6 md:py-4 uppercase tracking-[0.15em] md:tracking-[0.2em] text-xs md:text-sm hover:bg-[#FAF7F5] hover:text-[#DCAFB3] transition-colors shadow-sm rounded-full flex-1">
-                {t.visit}
-              </Link>
             </div>
-
-            <div className="mt-4 md:mt-8 border-t border-[#C89FA3] pt-6 md:pt-8 w-full max-w-xs sm:max-w-sm mb-16 md:mb-0">
-              <p className="text-xs md:text-sm uppercase tracking-widest text-[#F9E8EA] mb-2 md:mb-3">{t.reserve}</p>
-              <a href="tel:+491702278096" className="text-xl md:text-2xl font-serif tracking-wider hover:text-white transition-colors">
+            <div className="border-t border-[#4B5563] pt-8 w-full max-w-sm">
+              <p className="text-xs uppercase tracking-widest text-[#9CA3AF] mb-3">{t.reserve}</p>
+              <a href="tel:+491702278096" className="text-2xl font-serif tracking-wider text-[#C89FA3] hover:text-white transition-colors">
                 +49 170 2278096
               </a>
             </div>
-
-            <div className="absolute bottom-6 left-6 md:bottom-12 md:left-12 z-40">
-              <Link href="/gallery" className="flex items-center gap-3 md:gap-4 text-[#FAF7F5] hover:text-white transition-colors uppercase tracking-widest text-xs md:text-sm group">
-                <span className="w-6 md:w-8 h-[1px] bg-[#FAF7F5] group-hover:w-12 md:group-hover:w-16 transition-all duration-500 ease-in-out"></span>
-                {t.gallery}
-              </Link>
-            </div>
           </div>
           
-          {/* Right Side (Cream Theme / Acrostic) */}
-          <div className="w-full md:w-1/2 bg-[#FAF7F5] text-[#4A333E] flex flex-col justify-center items-center md:items-start p-8 sm:p-12 md:p-24 min-h-[50svh] md:min-h-screen">
-            <h2 className="text-2xl md:text-4xl font-serif mb-4 text-center md:text-left text-[#DCAFB3]">{t.welcome}</h2>
-            <p className="italic text-[#8A6F78] mb-10 text-center md:text-left text-sm md:text-lg">{t.quote}</p>
-            
-            <div className="space-y-3 text-sm md:text-base tracking-wider text-[#8A6F78]">
-              {acrostic.map((item, i) => (
-                <p key={i} className="flex items-center">
-                  <strong className="text-[#DCAFB3] text-xl md:text-2xl font-serif pr-3 md:pr-4 w-8">{item.l}</strong>
-                  {lang === 'de' ? item.de : item.en}
-                </p>
-              ))}
+          {/* Right Side: Hero Imagery Grid */}
+          <div className="w-full md:w-1/2 h-[50svh] md:h-auto relative grid grid-cols-2 gap-2 p-2 bg-[#F9FAFB]">
+            <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover rounded-tl-3xl" alt="Cafe ambiance" />
+            <img src="https://images.unsplash.com/photo-1603569283847-aa295f0d016a?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover rounded-tr-3xl" alt="Pouring coffee" />
+            <img src="https://images.unsplash.com/photo-1495147466023-ac5c588e2e94?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover rounded-bl-3xl col-span-2 md:col-span-1" alt="Pastries" />
+            <div className="hidden md:flex bg-[#C89FA3] rounded-br-3xl items-center justify-center p-8 text-center">
+              <p className="text-white font-serif text-2xl italic">"{t.quote}"</p>
             </div>
           </div>
         </div>
 
-        {/* --- NEW: VISUAL MENU SECTION --- */}
-        <div className="w-full bg-white py-20 md:py-32 px-6">
-          <div className="max-w-6xl mx-auto">
-            
-            {/* Elegant Header */}
-            <div className="text-center mb-16 md:mb-24">
-              <h2 className="text-3xl md:text-5xl font-serif text-[#DCAFB3] mb-6">
-                {t.featuredTitle}
-              </h2>
-              <div className="w-24 h-[1px] bg-[#C89FA3] mx-auto"></div>
-            </div>
-
-            {/* Arched Image Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
-              {t.featuredMenu.map((item, index) => (
-                <div key={index} className="flex flex-col items-center text-center group">
-                  {/* Window Arch Image Container */}
-                  <div className="w-full h-80 mb-8 overflow-hidden rounded-t-[120px] rounded-b-3xl shadow-[0_15px_40px_-15px_rgba(220,175,179,0.4)] border-4 border-[#FAF7F5]">
-                    <img 
-                      src={item.img} 
-                      alt={item.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
-                    />
-                  </div>
-                  
-                  {/* Item Details */}
-                  <h3 className="text-xl md:text-2xl font-serif text-[#4A333E] mb-3">{item.name}</h3>
-                  <p className="text-sm text-[#8A6F78] mb-4 max-w-[250px] leading-relaxed">{item.desc}</p>
-                  <p className="text-[#DCAFB3] font-bold tracking-widest">{item.price}</p>
-                </div>
-              ))}
-            </div>
-            
-            {/* Bottom Button */}
-            <div className="text-center mt-16">
-              <Link href="/menu" className="inline-block border border-[#DCAFB3] text-[#DCAFB3] px-8 py-3 uppercase tracking-widest text-xs font-bold hover:bg-[#DCAFB3] hover:text-white transition-colors rounded-full">
-                {t.menu}
-              </Link>
-            </div>
+        {/* --- FULL VISUAL MENU SECTION --- */}
+        <div className="w-full py-24 px-6 max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-serif text-[#374151] mb-6">Unser Menü</h2>
+            <div className="w-24 h-[2px] bg-[#C89FA3] mx-auto"></div>
           </div>
+
+          {/* Loop through Categories */}
+          {t.menuCategories.map((category, catIdx) => (
+            <div key={catIdx} className="mb-24 last:mb-0">
+              <h3 className="text-2xl tracking-widest uppercase text-[#9CA3AF] mb-10 text-center md:text-left border-b border-[#E5E7EB] pb-4">
+                {category.title}
+              </h3>
+              
+              {/* Image Grid for Every Item */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                {category.items.map((item, itemIdx) => (
+                  <div key={itemIdx} className="group cursor-pointer">
+                    {/* Item Image Box */}
+                    <div className="w-full aspect-square mb-4 overflow-hidden rounded-2xl bg-[#E5E7EB] relative shadow-sm">
+                      <img 
+                        src={item.img} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out opacity-90 group-hover:opacity-100"
+                      />
+                      {/* Price Tag Overlay */}
+                      <div className="absolute bottom-3 right-3 bg-[#F9FAFB]/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#4B5563]">
+                        {item.price}
+                      </div>
+                    </div>
+                    {/* Item Text */}
+                    <h4 className="text-lg font-serif text-[#374151] group-hover:text-[#C89FA3] transition-colors">{item.name}</h4>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
         
         {/* --- THE SECRET ADMIN TRIGGER --- */}
