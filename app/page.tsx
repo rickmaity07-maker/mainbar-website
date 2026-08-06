@@ -11,17 +11,21 @@ export default function Home() {
   const { lang } = useLanguage();
   const router = useRouter();
   
-  const [loading, setLoading] = useState(!animationPlayed);
+  // FIX: Start loading as 'true' so the server and client always match initially!
+  const [loading, setLoading] = useState(true); 
   const [explode, setExplode] = useState(false);
 
   useEffect(() => {
     if (!animationPlayed) {
-      const t1 = setTimeout(() => setExplode(true), 3400);
+      const t1 = setTimeout(() => setExplode(true), 2000);
       const t2 = setTimeout(() => {
         setLoading(false);
         animationPlayed = true;
-      }, 4200);
+      }, 2800);
       return () => { clearTimeout(t1); clearTimeout(t2); };
+    } else {
+      // FIX: If it already played, immediately dismiss it on the client
+      setLoading(false);
     }
   }, []);
 
@@ -32,9 +36,8 @@ export default function Home() {
     visit: lang === 'de' ? 'Besuchen Sie uns' : 'Visit Us',
     reserve: lang === 'de' ? 'Tischreservierung' : 'Table Reservation',
     welcome: lang === 'de' ? 'Willkommen in der Mainbar' : 'Welcome to Mainbar',
-    quote: lang === 'de' ? '"Bei uns ist Qualität das Produkt der Liebe zum Detail."' : '"With us, quality is the product of attention to detail."',
+    quote: lang === 'de' ? 'Bei uns ist Qualität das Produkt der Liebe zum Detail.' : 'With us, quality is the product of attention to detail.',
     
-    // Expanded Visual Menu with Images for EVERYTHING
     menuCategories: [
       {
         title: lang === 'de' ? 'Hausgemachte Gebäck' : 'House Pastries',
@@ -64,20 +67,17 @@ export default function Home() {
           className="fixed inset-0 z-[100] flex items-center justify-center bg-[#F9FAFB] transition-opacity duration-[800ms] ease-in-out"
           style={{ opacity: explode ? 0 : 1, pointerEvents: explode ? 'none' : 'auto' }}
         >
-          {/* Loader keeps the rose theme */}
           <div className="relative flex items-center justify-center w-full h-full transition-transform duration-[1000ms] ease-in-out" style={{ transform: explode ? 'scale(80)' : 'scale(1)' }}>
              <div className="w-16 h-16 border-4 border-[#E5E7EB] border-t-[#C89FA3] rounded-full animate-spin"></div>
           </div>
         </div>
       )}
 
-      {/* Main Area: Ash Gray Background, Slate Gray Text */}
       <main className="min-h-screen flex flex-col font-sans bg-[#F9FAFB] overflow-x-hidden text-[#4B5563]">
         
         {/* --- HERO IMAGE GRID SECTION --- */}
         <div className="min-h-[90svh] flex flex-col md:flex-row relative bg-[#374151]">
           
-          {/* Left Side: Dark Slate Gray */}
           <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-6 md:p-12 text-center relative z-10 text-[#F9FAFB]">
             <MainBarLogo textColor="text-[#C89FA3]" ringColor="border-[#C89FA3]" />
             <p className="text-sm md:text-xl font-serif tracking-[0.3em] uppercase text-[#9CA3AF] mb-12 px-4 mt-6">{t.subtitle}</p>
@@ -95,13 +95,13 @@ export default function Home() {
             </div>
           </div>
           
-          {/* Right Side: Hero Imagery Grid */}
           <div className="w-full md:w-1/2 h-[50svh] md:h-auto relative grid grid-cols-2 gap-2 p-2 bg-[#F9FAFB]">
             <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover rounded-tl-3xl" alt="Cafe ambiance" />
             <img src="https://images.unsplash.com/photo-1603569283847-aa295f0d016a?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover rounded-tr-3xl" alt="Pouring coffee" />
             <img src="https://images.unsplash.com/photo-1495147466023-ac5c588e2e94?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover rounded-bl-3xl col-span-2 md:col-span-1" alt="Pastries" />
             <div className="hidden md:flex bg-[#C89FA3] rounded-br-3xl items-center justify-center p-8 text-center">
-              <p className="text-white font-serif text-2xl italic">"{t.quote}"</p>
+              {/* FIX: Using proper HTML entity &quot; for the quotes to prevent compile errors! */}
+              <p className="text-white font-serif text-2xl italic">&quot;{t.quote}&quot;</p>
             </div>
           </div>
         </div>
@@ -113,30 +113,25 @@ export default function Home() {
             <div className="w-24 h-[2px] bg-[#C89FA3] mx-auto"></div>
           </div>
 
-          {/* Loop through Categories */}
           {t.menuCategories.map((category, catIdx) => (
             <div key={catIdx} className="mb-24 last:mb-0">
               <h3 className="text-2xl tracking-widest uppercase text-[#9CA3AF] mb-10 text-center md:text-left border-b border-[#E5E7EB] pb-4">
                 {category.title}
               </h3>
               
-              {/* Image Grid for Every Item */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                 {category.items.map((item, itemIdx) => (
                   <div key={itemIdx} className="group cursor-pointer">
-                    {/* Item Image Box */}
                     <div className="w-full aspect-square mb-4 overflow-hidden rounded-2xl bg-[#E5E7EB] relative shadow-sm">
                       <img 
                         src={item.img} 
                         alt={item.name} 
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out opacity-90 group-hover:opacity-100"
                       />
-                      {/* Price Tag Overlay */}
                       <div className="absolute bottom-3 right-3 bg-[#F9FAFB]/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#4B5563]">
                         {item.price}
                       </div>
                     </div>
-                    {/* Item Text */}
                     <h4 className="text-lg font-serif text-[#374151] group-hover:text-[#C89FA3] transition-colors">{item.name}</h4>
                   </div>
                 ))}
