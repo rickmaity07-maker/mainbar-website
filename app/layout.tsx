@@ -1,16 +1,36 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter, Great_Vibes, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "./context/LanguageContext";
-import TemplateSwitcher from "./components/TemplateSwitcher";
-// 1. Import your LanguageToggle component
-import LanguageToggle from "./components/LanguageToggle";
 
-const inter = Inter({ subsets: ["latin"] });
+// Optimize fonts for faster mobile loading
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const greatVibes = Great_Vibes({ weight: "400", subsets: ["latin"], variable: "--font-great-vibes" });
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
+
+// Strict mobile viewport settings to prevent accidental zooming on iOS/Android
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fcfbf9" },
+    { media: "(prefers-color-scheme: dark)", color: "#1a161d" }
+  ],
+};
 
 export const metadata: Metadata = {
-  title: "MainBar Schweinfurt",
-  description: "Cafe • Bar • Lebensart",
+  title: "MainBar | Schweinfurt",
+  description: "Bei uns ist Qualität das Produkt der Liebe zum Detail.",
+  icons: {
+    icon: '/favicon.ico',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "MainBar",
+  },
 };
 
 export default function RootLayout({
@@ -19,15 +39,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de">
-      <body className={`${inter.className} relative`}>
+    <html lang="en">
+      <body className={`${inter.variable} ${greatVibes.variable} ${playfair.variable} font-sans antialiased`}>
         <LanguageProvider>
-          {/* 2. Place it inside the provider so it's always on screen */}
-          <LanguageToggle />
-          
           {children}
-          
-          <TemplateSwitcher />
         </LanguageProvider>
       </body>
     </html>

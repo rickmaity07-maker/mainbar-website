@@ -5,40 +5,55 @@ import { useLanguage } from './context/LanguageContext';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; 
 
-// We put this OUTSIDE the component. 
 let animationPlayed = false;
 
 export default function Home() {
   const { lang } = useLanguage();
-  const router = useRouter(); // <-- Router initialized here
+  const router = useRouter();
   
-  // Initialize loading based on whether the animation has played yet
   const [loading, setLoading] = useState(!animationPlayed);
   const [explode, setExplode] = useState(false);
 
   useEffect(() => {
     if (!animationPlayed) {
-      // Phase 1: Wait for pour (2s) and let steam rise for a moment, then zoom out (3.4s)
       const t1 = setTimeout(() => setExplode(true), 3400);
-      
-      // Phase 2: Completely remove the preloader from the screen (4.2s)
       const t2 = setTimeout(() => {
         setLoading(false);
-        animationPlayed = true; // Mark as finished so it doesn't play on "Back Home" clicks
+        animationPlayed = true;
       }, 4200);
-      
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
   }, []);
 
   const t = {
-    subtitle: lang === 'de' ? 'Getränke & Speisen' : 'Drinks & Food',
+    subtitle: lang === 'de' ? 'Café & Patisserie' : 'Café & Patisserie',
     menu: lang === 'de' ? 'Zur Speisekarte' : 'View Menu',
     gallery: lang === 'de' ? 'Galerie' : 'Gallery',
     visit: lang === 'de' ? 'Besuchen Sie uns' : 'Visit Us',
     reserve: lang === 'de' ? 'Tischreservierung' : 'Table Reservation',
     welcome: lang === 'de' ? 'Willkommen in der Mainbar' : 'Welcome to Mainbar',
     quote: lang === 'de' ? '"Bei uns ist Qualität das Produkt der Liebe zum Detail."' : '"With us, quality is the product of attention to detail."',
+    featuredTitle: lang === 'de' ? 'Süße Versuchungen' : 'Sweet Temptations',
+    featuredMenu: [
+      {
+        name: lang === 'de' ? 'Beeren-Tarte' : 'Berry Tart',
+        desc: lang === 'de' ? 'Frische Beeren auf zarter Vanillecreme.' : 'Fresh berries on delicate vanilla custard.',
+        price: '€ 5.50',
+        img: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=800&auto=format&fit=crop'
+      },
+      {
+        name: lang === 'de' ? 'Rosen-Latte' : 'Rose Vanilla Latte',
+        desc: lang === 'de' ? 'Espresso, aufgeschäumte Milch & Rosensirup.' : 'Espresso, steamed milk & rose syrup.',
+        price: '€ 4.80',
+        img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800&auto=format&fit=crop'
+      },
+      {
+        name: lang === 'de' ? 'Macaron Variation' : 'Macaron Assortment',
+        desc: lang === 'de' ? 'Handgemachte französische Macarons.' : 'Handcrafted French macarons.',
+        price: '€ 6.20',
+        img: 'https://images.unsplash.com/photo-1569864358642-9d1684040f43?q=80&w=800&auto=format&fit=crop'
+      }
+    ]
   };
 
   const acrostic = [
@@ -60,7 +75,7 @@ export default function Home() {
     <>
       {loading && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#fcfbf9] transition-opacity duration-[800ms] ease-in-out"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#FAF7F5] transition-opacity duration-[800ms] ease-in-out"
           style={{ opacity: explode ? 0 : 1, pointerEvents: explode ? 'none' : 'auto' }}
         >
           <style>{`
@@ -94,90 +109,124 @@ export default function Home() {
             style={{ transform: explode ? 'scale(80)' : 'scale(1)' }}
           >
              <div className="relative w-48 h-48">
-                
-                {/* Kettle SVG */}
-                <div className="absolute top-0 right-4 w-20 h-20 text-[#7a6c82] animate-tilt origin-bottom-left z-20">
+                <div className="absolute top-0 right-4 w-20 h-20 text-[#DCAFB3] animate-tilt origin-bottom-left z-20">
                   <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.5">
                      <path d="M8 3v2M12 3v2M16 3v2M5 10c0-2.2 1.8-4 4-4h6c2.2 0 4 1.8 4 4v7c0 2.2-1.8 4-4 4H9c-2.2 0-4-1.8-4-4v-7z" fill="none"/>
                      <path d="M19 12h2a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-2" fill="none"/>
                      <path d="M5 12H2L4 7h1" fill="none"/>
                   </svg>
                 </div>
-
-                {/* Animated Coffee Stream */}
-                <div className="absolute top-12 left-[3.2rem] w-2 h-20 bg-[#3a3340] rounded-full animate-pour z-10"></div>
-
-                {/* Dynamic Rising Steam */}
-                <div className="absolute bottom-20 left-6 w-5 h-5 bg-gray-400 rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 2s ease-in infinite', animationDelay: '1.8s' }}></div>
-                <div className="absolute bottom-20 left-12 w-6 h-6 bg-gray-400 rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 2.2s ease-in infinite', animationDelay: '2.1s' }}></div>
-                <div className="absolute bottom-20 left-16 w-4 h-4 bg-gray-400 rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 1.8s ease-in infinite', animationDelay: '2.4s' }}></div>
-
-                {/* Cup Outline */}
-                <div className="absolute bottom-4 left-4 w-20 h-16 border-4 border-[#7a6c82] rounded-b-xl z-20 overflow-hidden bg-[#fcfbf9]">
-                  {/* Rising Coffee Filling */}
-                  <div className="absolute bottom-0 left-0 w-full h-full bg-[#7a6c82] origin-bottom animate-fill"></div>
+                <div className="absolute top-12 left-[3.2rem] w-2 h-20 bg-[#8A6F78] rounded-full animate-pour z-10"></div>
+                <div className="absolute bottom-20 left-6 w-5 h-5 bg-[#DCAFB3] rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 2s ease-in infinite', animationDelay: '1.8s' }}></div>
+                <div className="absolute bottom-20 left-12 w-6 h-6 bg-[#DCAFB3] rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 2.2s ease-in infinite', animationDelay: '2.1s' }}></div>
+                <div className="absolute bottom-20 left-16 w-4 h-4 bg-[#DCAFB3] rounded-full blur-md opacity-0 z-30" style={{ animation: 'steam-rise 1.8s ease-in infinite', animationDelay: '2.4s' }}></div>
+                <div className="absolute bottom-4 left-4 w-20 h-16 border-4 border-[#DCAFB3] rounded-b-xl z-20 overflow-hidden bg-[#FAF7F5]">
+                  <div className="absolute bottom-0 left-0 w-full h-full bg-[#DCAFB3] origin-bottom animate-fill"></div>
                 </div>
-                
-                {/* Cup Handle */}
-                <div className="absolute bottom-6 left-[5.5rem] w-6 h-8 border-4 border-l-0 border-[#7a6c82] rounded-r-full z-10"></div>
+                <div className="absolute bottom-6 left-[5.5rem] w-6 h-8 border-4 border-l-0 border-[#DCAFB3] rounded-r-full z-10"></div>
              </div>
           </div>
         </div>
       )}
 
-      {/* Main Content Area */}
-      <main className="min-h-[100svh] flex flex-col md:flex-row font-sans relative overflow-x-hidden">
+      {/* Main Scrollable Area */}
+      <main className="min-h-screen flex flex-col font-sans bg-[#FAF7F5] overflow-x-hidden text-[#4A333E]">
         
-        {/* Left Side (Purple Theme) */}
-        <div className="w-full md:w-1/2 bg-[#7a6c82] text-[#fcfbf9] flex flex-col items-center justify-center p-6 sm:p-10 md:p-12 text-center relative min-h-[50svh] md:min-h-screen">
+        {/* --- HERO SPLIT SECTION --- */}
+        <div className="min-h-[100svh] flex flex-col md:flex-row relative">
           
-          <div className="mb-2 md:mb-4 mt-8 md:mt-0">
-            <MainBarLogo textColor="text-[#fcfbf9]" ringColor="border-[#dcd6df]" />
-          </div>
-          
-          <p className="text-sm sm:text-base md:text-xl tracking-[0.2em] md:tracking-[0.3em] uppercase text-[#dcd6df] mb-8 md:mb-12 px-4">{t.subtitle}</p>
-          
-          {/* Buttons: Stack on mobile, side-by-side on desktop */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-2 mb-8 md:mb-10 w-full max-w-xs sm:max-w-md">
-            <Link href="/menu" className="border-2 border-[#fcfbf9] text-[#fcfbf9] px-4 py-3 md:px-6 md:py-4 uppercase tracking-[0.15em] md:tracking-[0.2em] text-xs md:text-sm font-bold hover:bg-white hover:text-[#7a6c82] transition-colors shadow-lg flex-1">
-              {t.menu}
-            </Link>
-            <Link href="/contact" className="border-2 border-[#fcfbf9] text-[#fcfbf9] px-4 py-3 md:px-6 md:py-4 uppercase tracking-[0.15em] md:tracking-[0.2em] text-xs md:text-sm font-bold hover:bg-white hover:text-[#7a6c82] transition-colors shadow-lg flex-1">
-              {t.visit}
-            </Link>
-          </div>
+          {/* Left Side (Blush Pink Theme) */}
+          <div className="w-full md:w-1/2 bg-[#DCAFB3] text-[#FAF7F5] flex flex-col items-center justify-center p-6 sm:p-10 md:p-12 text-center relative min-h-[50svh] md:min-h-screen">
+            
+            <div className="mb-2 md:mb-4 mt-8 md:mt-0">
+              <MainBarLogo textColor="text-[#FAF7F5]" ringColor="border-[#FAF7F5]" />
+            </div>
+            
+            <p className="text-sm sm:text-base md:text-xl font-serif tracking-[0.2em] md:tracking-[0.3em] uppercase text-[#F9E8EA] mb-8 md:mb-12 px-4">{t.subtitle}</p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-2 mb-8 md:mb-10 w-full max-w-xs sm:max-w-md">
+              <Link href="/menu" className="border border-[#FAF7F5] bg-transparent text-[#FAF7F5] px-4 py-3 md:px-6 md:py-4 uppercase tracking-[0.15em] md:tracking-[0.2em] text-xs md:text-sm hover:bg-[#FAF7F5] hover:text-[#DCAFB3] transition-colors shadow-sm rounded-full flex-1">
+                {t.menu}
+              </Link>
+              <Link href="/contact" className="border border-[#FAF7F5] bg-transparent text-[#FAF7F5] px-4 py-3 md:px-6 md:py-4 uppercase tracking-[0.15em] md:tracking-[0.2em] text-xs md:text-sm hover:bg-[#FAF7F5] hover:text-[#DCAFB3] transition-colors shadow-sm rounded-full flex-1">
+                {t.visit}
+              </Link>
+            </div>
 
-          <div className="mt-4 md:mt-8 border-t border-[#9b8d9f] pt-6 md:pt-8 w-full max-w-xs sm:max-w-sm mb-16 md:mb-0">
-            <p className="text-xs md:text-sm uppercase tracking-widest text-[#dcd6df] mb-2 md:mb-3">{t.reserve}</p>
-            <a href="tel:+491702278096" className="text-xl md:text-2xl font-light tracking-wider hover:text-white transition-colors">
-              +49 170 2278096
-            </a>
-          </div>
+            <div className="mt-4 md:mt-8 border-t border-[#C89FA3] pt-6 md:pt-8 w-full max-w-xs sm:max-w-sm mb-16 md:mb-0">
+              <p className="text-xs md:text-sm uppercase tracking-widest text-[#F9E8EA] mb-2 md:mb-3">{t.reserve}</p>
+              <a href="tel:+491702278096" className="text-xl md:text-2xl font-serif tracking-wider hover:text-white transition-colors">
+                +49 170 2278096
+              </a>
+            </div>
 
-          <div className="absolute bottom-6 left-6 md:bottom-12 md:left-12 z-40">
-            <Link href="/gallery" className="flex items-center gap-3 md:gap-4 text-[#fcfbf9] hover:text-gray-300 transition-colors uppercase tracking-widest text-xs md:text-sm font-bold group">
-              <span className="w-6 md:w-8 h-[2px] bg-[#fcfbf9] group-hover:w-12 md:group-hover:w-16 transition-all duration-500 ease-in-out"></span>
-              {t.gallery}
-            </Link>
+            <div className="absolute bottom-6 left-6 md:bottom-12 md:left-12 z-40">
+              <Link href="/gallery" className="flex items-center gap-3 md:gap-4 text-[#FAF7F5] hover:text-white transition-colors uppercase tracking-widest text-xs md:text-sm group">
+                <span className="w-6 md:w-8 h-[1px] bg-[#FAF7F5] group-hover:w-12 md:group-hover:w-16 transition-all duration-500 ease-in-out"></span>
+                {t.gallery}
+              </Link>
+            </div>
+          </div>
+          
+          {/* Right Side (Cream Theme / Acrostic) */}
+          <div className="w-full md:w-1/2 bg-[#FAF7F5] text-[#4A333E] flex flex-col justify-center items-center md:items-start p-8 sm:p-12 md:p-24 min-h-[50svh] md:min-h-screen">
+            <h2 className="text-2xl md:text-4xl font-serif mb-4 text-center md:text-left text-[#DCAFB3]">{t.welcome}</h2>
+            <p className="italic text-[#8A6F78] mb-10 text-center md:text-left text-sm md:text-lg">{t.quote}</p>
+            
+            <div className="space-y-3 text-sm md:text-base tracking-wider text-[#8A6F78]">
+              {acrostic.map((item, i) => (
+                <p key={i} className="flex items-center">
+                  <strong className="text-[#DCAFB3] text-xl md:text-2xl font-serif pr-3 md:pr-4 w-8">{item.l}</strong>
+                  {lang === 'de' ? item.de : item.en}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* --- NEW: VISUAL MENU SECTION --- */}
+        <div className="w-full bg-white py-20 md:py-32 px-6">
+          <div className="max-w-6xl mx-auto">
+            
+            {/* Elegant Header */}
+            <div className="text-center mb-16 md:mb-24">
+              <h2 className="text-3xl md:text-5xl font-serif text-[#DCAFB3] mb-6">
+                {t.featuredTitle}
+              </h2>
+              <div className="w-24 h-[1px] bg-[#C89FA3] mx-auto"></div>
+            </div>
+
+            {/* Arched Image Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
+              {t.featuredMenu.map((item, index) => (
+                <div key={index} className="flex flex-col items-center text-center group">
+                  {/* Window Arch Image Container */}
+                  <div className="w-full h-80 mb-8 overflow-hidden rounded-t-[120px] rounded-b-3xl shadow-[0_15px_40px_-15px_rgba(220,175,179,0.4)] border-4 border-[#FAF7F5]">
+                    <img 
+                      src={item.img} 
+                      alt={item.name} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
+                    />
+                  </div>
+                  
+                  {/* Item Details */}
+                  <h3 className="text-xl md:text-2xl font-serif text-[#4A333E] mb-3">{item.name}</h3>
+                  <p className="text-sm text-[#8A6F78] mb-4 max-w-[250px] leading-relaxed">{item.desc}</p>
+                  <p className="text-[#DCAFB3] font-bold tracking-widest">{item.price}</p>
+                </div>
+              ))}
+            </div>
+            
+            {/* Bottom Button */}
+            <div className="text-center mt-16">
+              <Link href="/menu" className="inline-block border border-[#DCAFB3] text-[#DCAFB3] px-8 py-3 uppercase tracking-widest text-xs font-bold hover:bg-[#DCAFB3] hover:text-white transition-colors rounded-full">
+                {t.menu}
+              </Link>
+            </div>
           </div>
         </div>
         
-        {/* Right Side (Light Theme / Acrostic) */}
-        <div className="w-full md:w-1/2 bg-[#fcfbf9] text-[#7a6c82] flex flex-col justify-center items-center md:items-start p-8 sm:p-12 md:p-24 min-h-[50svh] md:min-h-screen">
-          <h2 className="text-xl md:text-2xl font-medium mb-3 md:mb-4 uppercase tracking-widest text-center md:text-left">{t.welcome}</h2>
-          <p className="italic text-gray-500 mb-8 md:mb-10 text-center md:text-left text-sm md:text-base">{t.quote}</p>
-          
-          <div className="space-y-2 text-base md:text-lg tracking-wider text-gray-700">
-            {acrostic.map((item, i) => (
-              <p key={i}>
-                <strong className="text-[#7a6c82] text-xl md:text-2xl font-bold pr-3 md:pr-4">{item.l}</strong>
-                {lang === 'de' ? item.de : item.en}
-              </p>
-            ))}
-          </div>
-        </div>
-        
-       {/* --- THE SECRET ADMIN TRIGGER --- */}
+        {/* --- THE SECRET ADMIN TRIGGER --- */}
         <div 
           onClick={() => router.push('/mb-vault-m892')} 
           className="fixed bottom-0 right-0 w-16 h-16 z-[200] opacity-0 cursor-default"
