@@ -13,26 +13,26 @@ export default function Menu() {
       {
         title: lang === 'de' ? 'Hausgemachte Gebäck' : 'House Pastries',
         items: [
-          { name: lang === 'de' ? 'Beeren-Tarte' : 'Berry Tart', desc: lang === 'de' ? 'Frische Beeren auf Vanillecreme.' : 'Fresh berries on vanilla custard.', price: '€ 5.50', img: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=800&auto=format&fit=crop' },
-          { name: lang === 'de' ? 'Macaron Variation' : 'Macaron Assortment', desc: lang === 'de' ? 'Handgemachte französische Macarons.' : 'Handcrafted French macarons.', price: '€ 6.20', img: 'https://images.unsplash.com/photo-1569864358642-9d1684040f43?q=80&w=800&auto=format&fit=crop' },
-          { name: lang === 'de' ? 'Butter Croissant' : 'Butter Croissant', desc: lang === 'de' ? 'Täglich frisch gebacken.' : 'Freshly baked daily.', price: '€ 3.50', img: 'https://images.unsplash.com/photo-1555507036-ab1e4006aaeb?q=80&w=800&auto=format&fit=crop' },
-          { name: lang === 'de' ? 'Schokoladenkuchen' : 'Chocolate Cake', desc: lang === 'de' ? 'Mit flüssigem Kern.' : 'With a molten center.', price: '€ 4.90', img: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=800&auto=format&fit=crop' }
+          { name: lang === 'de' ? 'Beeren-Tarte' : 'Berry Tart', desc: lang === 'de' ? 'Frische Beeren auf Vanillecreme.' : 'Fresh berries on vanilla custard.', price: '€ 5.50', img: '/media/mainbar-photo-10.jpg' },
+          { name: lang === 'de' ? 'Macaron Variation' : 'Macaron Assortment', desc: lang === 'de' ? 'Handgemachte französische Macarons.' : 'Handcrafted French macarons.', price: '€ 6.20', img: '/media/mainbar-photo-11.jpg' },
+          { name: lang === 'de' ? 'Butter Croissant' : 'Butter Croissant', desc: lang === 'de' ? 'Täglich frisch gebacken.' : 'Freshly baked daily.', price: '€ 3.50', img: '/media/mainbar-photo-12.jpg' },
+          { name: lang === 'de' ? 'Schokoladenkuchen' : 'Chocolate Cake', desc: lang === 'de' ? 'Mit flüssigem Kern.' : 'With a molten center.', price: '€ 4.90', img: '/media/mainbar-photo-13.jpg' }
         ]
       },
       {
         title: lang === 'de' ? 'Heiße Klassiker' : 'Hot Classics',
         items: [
-          { name: lang === 'de' ? 'Rosen-Latte' : 'Rose Vanilla Latte', desc: lang === 'de' ? 'Espresso & Rosensirup.' : 'Espresso & rose syrup.', price: '€ 4.80', img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800&auto=format&fit=crop' },
-          { name: lang === 'de' ? 'Cappuccino' : 'Cappuccino', desc: lang === 'de' ? 'Doppelter Espresso mit cremigem Schaum.' : 'Double espresso with creamy foam.', price: '€ 3.80', img: 'https://images.unsplash.com/photo-1572442388796-11668a67ef46?q=80&w=800&auto=format&fit=crop' },
-          { name: lang === 'de' ? 'Matcha Latte' : 'Matcha Latte', desc: lang === 'de' ? 'Premium Matcha aus Japan.' : 'Premium Matcha from Japan.', price: '€ 4.50', img: 'https://images.unsplash.com/photo-1515823662972-da6a2e4d3002?q=80&w=800&auto=format&fit=crop' },
-          { name: lang === 'de' ? 'Flat White' : 'Flat White', desc: lang === 'de' ? 'Samtiger Mikroschaum.' : 'Velvety microfoam.', price: '€ 4.20', img: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=800&auto=format&fit=crop' }
+          { name: lang === 'de' ? 'Rosen-Latte' : 'Rose Vanilla Latte', desc: lang === 'de' ? 'Espresso & Rosensirup.' : 'Espresso & rose syrup.', price: '€ 4.80', img: '/media/mainbar-photo-14.jpg' },
+          { name: lang === 'de' ? 'Cappuccino' : 'Cappuccino', desc: lang === 'de' ? 'Doppelter Espresso mit cremigem Schaum.' : 'Double espresso with creamy foam.', price: '€ 3.80', img: '/media/mainbar-photo-15.jpg' },
+          { name: lang === 'de' ? 'Matcha Latte' : 'Matcha Latte', desc: lang === 'de' ? 'Premium Matcha aus Japan.' : 'Premium Matcha from Japan.', price: '€ 4.50', img: '/media/mainbar-photo-16.jpg' },
+          { name: lang === 'de' ? 'Flat White' : 'Flat White', desc: lang === 'de' ? 'Samtiger Mikroschaum.' : 'Velvety microfoam.', price: '€ 4.20', img: '/media/mainbar-photo-17.jpg' }
         ]
       },
       {
         title: lang === 'de' ? 'Kühle Erfrischungen' : 'Cold Refreshments',
         items: [
-          { name: lang === 'de' ? 'Iced Rose Latte' : 'Iced Rose Latte', desc: lang === 'de' ? 'Erfrischend auf Eis.' : 'Refreshing over ice.', price: '€ 4.90', img: 'https://images.unsplash.com/photo-1499961024600-ad094db6060c?q=80&w=800&auto=format&fit=crop' },
-          { name: lang === 'de' ? 'Hausgemachte Limonade' : 'House Lemonade', desc: lang === 'de' ? 'Zitrone, Minze & Soda.' : 'Lemon, mint & soda.', price: '€ 4.20', img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=800&auto=format&fit=crop' }
+          { name: lang === 'de' ? 'Iced Rose Latte' : 'Iced Rose Latte', desc: lang === 'de' ? 'Erfrischend auf Eis.' : 'Refreshing over ice.', price: '€ 4.90', img: '/media/mainbar-photo-18.jpg' },
+          { name: lang === 'de' ? 'Hausgemachte Limonade' : 'House Lemonade', desc: lang === 'de' ? 'Zitrone, Minze & Soda.' : 'Lemon, mint & soda.', price: '€ 4.20', img: '/media/mainbar-photo-19.jpg' }
         ]
       }
     ]

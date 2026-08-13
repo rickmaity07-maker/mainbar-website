@@ -14,15 +14,15 @@ export default function ModernGallery() {
   };
 
   const images = [
-    "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800&h=600&fit=crop", 
-    "https://images.unsplash.com/photo-1445116572660-236099ec97a0?q=80&w=600&h=800&fit=crop", 
-    "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=800&h=600&fit=crop", 
-    "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=600&h=800&fit=crop", 
-    "https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?q=80&w=800&h=600&fit=crop", 
-    "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&h=800&fit=crop", 
-    "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=800&h=600&fit=crop", 
-    "https://images.unsplash.com/photo-1525610553991-2bede1a236e2?q=80&w=600&h=800&fit=crop", 
-    "https://images.unsplash.com/photo-1498804103079-a6351b050096?q=80&w=800&h=600&fit=crop", 
+    "/media/mainbar-photo-1.jpg", 
+    "/media/mainbar-photo-2.jpg", 
+    "/media/mainbar-photo-3.jpg", 
+    "/media/mainbar-photo-4.jpg", 
+    "/media/mainbar-photo-5.jpg", 
+    "/media/mainbar-photo-6.jpg", 
+    "/media/mainbar-photo-7.jpg", 
+    "/media/mainbar-photo-8.jpg", 
+    "/media/mainbar-photo-9.jpg", 
   ];
 
   const openLightbox = (index: number) => setCurrentIndex(index);
