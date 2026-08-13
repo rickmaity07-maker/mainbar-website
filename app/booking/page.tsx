@@ -56,10 +56,10 @@ export default function BookingPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#faf8f5] px-6 py-24 flex items-center justify-center relative">
+    <main className="min-h-screen bg-[#faf8f5] px-4 md:px-6 py-24 flex items-center justify-center relative">
       
-      {/* Back Button */}
-      <Link href="/" className="absolute top-8 left-8 text-[#a0a0a0] hover:text-[#cda1b1] text-xs font-bold tracking-widest uppercase transition-colors">
+      {/* Back Button with Mobile Safe-Area Margin */}
+      <Link href="/" className="absolute top-12 md:top-8 left-6 md:left-8 text-[#a0a0a0] hover:text-[#cda1b1] text-[10px] md:text-xs font-bold tracking-widest uppercase transition-colors p-2 md:p-0">
         &larr; Zurück
       </Link>
 
@@ -68,7 +68,7 @@ export default function BookingPage() {
           <motion.div 
             key="form"
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.6 }}
-            className="w-full max-w-2xl bg-white p-10 md:p-16 rounded-3xl shadow-xl border border-gray-100"
+            className="w-full max-w-2xl bg-white p-8 md:p-16 rounded-3xl shadow-xl border border-gray-100"
           >
             <div className="text-center mb-10">
               <h1 className="font-serif text-3xl md:text-4xl text-[#2d2d2d] mb-4">Event & Catering</h1>
@@ -132,7 +132,7 @@ export default function BookingPage() {
           <motion.div 
             key="success"
             initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="w-full max-w-md bg-white p-12 rounded-3xl shadow-xl border border-gray-100 text-center flex flex-col items-center"
+            className="w-full max-w-md bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-gray-100 text-center flex flex-col items-center"
           >
             <div className="w-16 h-16 bg-[#e6d0d8] rounded-full flex items-center justify-center mb-6">
               <span className="text-[#cda1b1] text-2xl">✓</span>
