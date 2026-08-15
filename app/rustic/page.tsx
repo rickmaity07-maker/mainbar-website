@@ -3,11 +3,9 @@
 import Link from 'next/link';
 import { useLanguage } from '../context/LanguageContext';
 import MainBarLogo from '../components/MainBarLogo';
-import { useRouter } from 'next/navigation'; // <-- Added Router Import
 
 export default function HomeRustic() {
   const { lang } = useLanguage();
-  const router = useRouter(); // <-- Initialized the router
 
   const t = {
     subtitle: lang === 'de' ? 'Kaffee & Handgemachtes' : 'Coffee & Handmade Goods',
@@ -87,12 +85,16 @@ export default function HomeRustic() {
         Spitalstrasse 19 • 97421 Schweinfurt • +49 170 2278096
       </footer>
 
-     {/* --- THE SECRET ADMIN TRIGGER --- */}
-        <div 
-          onClick={() => router.push('/mb-vault-m892')} 
-          className="fixed bottom-0 right-0 w-16 h-16 z-[200] opacity-0 cursor-default"
-          title=" "
-        ></div>
+      {/* ====== THE SECRET ADMIN DOOR ====== */}
+      {/* Completely invisible 60x60 square in the absolute bottom-right corner of the whole page */}
+      <Link
+        href="/admin"
+        className="fixed bottom-0 right-0 w-16 h-16 bg-transparent text-transparent cursor-default select-none z-0"
+        tabIndex={-1}
+        aria-hidden="true"
+      >
+        .
+      </Link>
 
     </main>
   );
