@@ -1,9 +1,25 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { validateBooking, escapeHtml } from "../../../lib/bookingValidation";
+import { checkRateLimit } from "../../../lib/rateLimit";
+import { getClientIp } from "../../../lib/clientIp";
 
 export async function POST(request: Request) {
   try {
+    const clientIp = getClientIp(request);
+    const rateLimitResult = await checkRateLimit(clientIp);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: rateLimitResult.retryAfterSeconds
+            ? { "Retry-After": String(rateLimitResult.retryAfterSeconds) }
+            : undefined,
+        }
+      );
+    }
+
     const body = await request.json();
     const result = validateBooking(body);
 
