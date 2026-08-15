@@ -1,10 +1,39 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { validateBooking, escapeHtml } from "../../../lib/bookingValidation";
+import { checkRateLimit } from "../../../lib/rateLimit";
+import { getClientIp } from "../../../lib/clientIp";
 
 export async function POST(request: Request) {
   try {
-    const data = await request.json();
-    const { seating, guests, date, state, city, phone, email } = data;
+    const clientIp = getClientIp(request);
+    const rateLimitResult = await checkRateLimit(clientIp);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: rateLimitResult.retryAfterSeconds
+            ? { "Retry-After": String(rateLimitResult.retryAfterSeconds) }
+            : undefined,
+        }
+      );
+    }
+
+    const body = await request.json();
+    const result = validateBooking(body);
+
+    if (!result.valid) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
+
+    const { seating, guests, date, state, city, phone, email } = result.data;
+    const safeDate = escapeHtml(date);
+    const safeSeating = escapeHtml(seating);
+    const safeState = escapeHtml(state);
+    const safeCity = escapeHtml(city);
+    const safePhone = escapeHtml(phone);
+    const safeEmail = escapeHtml(email);
 
     // Configure SMTP Transporter using Gmail App Password
     const transporter = nodemailer.createTransport({
@@ -23,9 +52,9 @@ export async function POST(request: Request) {
       html: `
         <div style="font-family: sans-serif; color: #353941; padding: 20px;">
           <h2>Vielen Dank für Ihre Anfrage!</h2>
-          <p>Wir haben Ihre Event-Anfrage für den <b>${date}</b> (${guests} Personen) erhalten.</p>
-          <p><b>Sitzplatz:</b> ${seating}</p>
-          <p><b>Ort:</b> ${city}, ${state}</p>
+          <p>Wir haben Ihre Event-Anfrage für den <b>${safeDate}</b> (${guests} Personen) erhalten.</p>
+          <p><b>Sitzplatz:</b> ${safeSeating}</p>
+          <p><b>Ort:</b> ${safeCity}, ${safeState}</p>
           <br/>
           <p>Unser Team prüft aktuell die Verfügbarkeit und meldet sich in Kürze bei Ihnen.</p>
           <p><i>Ihr MainBar Team</i></p>
@@ -37,16 +66,16 @@ export async function POST(request: Request) {
     const ownerMailOptions = {
       from: `"MainBar Website" <${process.env.GMAIL_USER}>`,
       to: process.env.GMAIL_USER, // Sends directly to the owner email
-      subject: `Neue Event-Anfrage: ${date} (${guests} Personen)`,
+      subject: `Neue Event-Anfrage: ${safeDate} (${guests} Personen)`,
       html: `
         <div style="font-family: sans-serif; color: #353941; padding: 20px;">
           <h2>Neue Catering / Event Anfrage</h2>
-          <p><b>Datum:</b> ${date}</p>
+          <p><b>Datum:</b> ${safeDate}</p>
           <p><b>Gäste:</b> ${guests}</p>
-          <p><b>Sitzplatz:</b> ${seating}</p>
-          <p><b>Ort:</b> ${city}, ${state}</p>
-          <p><b>Telefon:</b> ${phone}</p>
-          <p><b>Email:</b> ${email}</p>
+          <p><b>Sitzplatz:</b> ${safeSeating}</p>
+          <p><b>Ort:</b> ${safeCity}, ${safeState}</p>
+          <p><b>Telefon:</b> ${safePhone}</p>
+          <p><b>Email:</b> ${safeEmail}</p>
         </div>
       `,
     };
