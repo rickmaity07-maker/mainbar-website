@@ -12,78 +12,6 @@ const menuCategories = [
   "HEISSGETRÄNKE", "ALKOHOLFREI", "APERITIF & BIER", "WEINE & LONGDRINKS"
 ];
 
-const firestoreMenuData = [
-  { category: "FRÜHSTÜCK", name: "Die Mainbar Frühstücksetagere", description: "Wilder, leckerer Mix unseres Frühstücksangebots auf einer Etagere serviert genau das richtige. Ab 2 Personen.", price: "38.90", image_url: "/media/mainbar-photo-1.jpg" },
-  { category: "FRÜHSTÜCK", name: "Das Baggersee Frühstück", description: "Geräucherter Lachs mit Meerrettich, hausgemachter Shrimps-Cocktail, frisches Avocadomus, fränkischer Räucherschinken, 1 gekochtes Ei, frisches Gemüse, Butter & selbstgebackenes Brot/Brötchen", price: "18.90", image_url: "/media/mainbar-photo-2.jpg" },
-  { category: "FRÜHSTÜCK", name: "Das Schweinfurter Markt Frühstück", description: "1 gekochtes Ei, Hart- und Weichkäse, Feigensenf, frisches Avocadomus, selbst eingelegter Feta, hausgemachter Kräuterfrischkäse, Marktgemüse, Butter & selbstgebackenes Brot/Brötchen. (mit frisch gepresstem O-Saft 0.25l +4,00€)", price: "17.90", image_url: "/media/mainbar-photo-3.jpg" },
-  { category: "FRÜHSTÜCK", name: "Das Rathaus Frühstück", description: "Büffelmozzarella & Tomate, frisch aufgeschnittener Parmaschinken & italienische Salami, Rührei mit Trüffel, Butter & selbstgebackenes Brot/Brötchen (mit Prosecco 0,1 +3,50€)", price: "17.90", image_url: "/media/mainbar-photo-4.jpg" },
-  { category: "FRÜHSTÜCK", name: "Eggs Benedict", description: "Angebratenes Brot, Rucola, frische Avocado, gekochter Schinken oder Räucherlachs, zwei pochierte Eier, Tomate, Hollandaise", price: "13.90", image_url: "/media/mainbar-photo-5.jpg" },
-  { category: "FRÜHSTÜCK", name: "Das Kleine Spitalstraßenfrühstück", description: "Marmelade oder Honig, Butter, selbstgebackenes Brot/Brötchen, kleines hausgemachtes Granola mit griechischem Joghurt & frischen Früchten.", price: "9.90", image_url: "/media/mainbar-photo-6.jpg" },
-  { category: "FRÜHSTÜCK", name: "Extra: Rührei natur", description: "Aus 3 Eiern", price: "7.90", image_url: "/media/mainbar-photo-1.jpg" },
-  { category: "FRÜHSTÜCK", name: "Extra: Rührei mit Bacon", description: "", price: "8.90", image_url: "/media/mainbar-photo-2.jpg" },
-  { category: "FRÜHSTÜCK", name: "Extra: 1x gekochtes Ei", description: "", price: "2.00", image_url: "/media/mainbar-photo-3.jpg" },
-  { category: "FRÜHSTÜCK", name: "Extra: Butter | Honig | Frischkäse | Marmelade", description: "", price: "1.50", image_url: "/media/mainbar-photo-4.jpg" },
-  { category: "FRÜHSTÜCK", name: "Extra: Portion Lachs & Sahnemeerrettich", description: "", price: "6.00", image_url: "/media/mainbar-photo-5.jpg" },
-  { category: "FRÜHSTÜCK", name: "Extra: Hausgemachtes Granola", description: "Joghurt & Früchte", price: "8.90", image_url: "/media/mainbar-photo-6.jpg" },
-  { category: "FRÜHSTÜCK", name: "Extra: Portion selbstgebackenes Brot/Brötchen", description: "", price: "3.50", image_url: "/media/mainbar-photo-1.jpg" },
-  { category: "GESCHMACKSSACHEN", name: "Brot: Avocado & Spiegelei", description: "Frisches Avocadomus & Spiegelei auf selbstgebackenem Brot", price: "12.90", image_url: "/media/mainbar-photo-7.jpg" },
-  { category: "GESCHMACKSSACHEN", name: "Brot: Pesto & Parmaschinken", description: "Pesto, Parmaschinken, Rucola & Parmesan auf selbstgebackenem Brot", price: "13.90", image_url: "/media/mainbar-photo-8.jpg" },
-  { category: "GESCHMACKSSACHEN", name: "Brot: Avocado & Räucherlachs", description: "Frischkäse, frische Avocado & Räucherlachs auf selbstgebackenem Brot", price: "14.90", image_url: "/media/mainbar-photo-7.jpg" },
-  { category: "GESCHMACKSSACHEN", name: "Brot: Geräucherter Schinken", description: "Geräucherter Schinken, Spiegelei & Saure Gurke auf selbstgebackenem Brot", price: "11.90", image_url: "/media/mainbar-photo-8.jpg" },
-  { category: "GESCHMACKSSACHEN", name: "Brot: Grillgemüse", description: "Frischkäse, Rucola, Grillgemüse, Parmesan auf selbstgebackenem Brot", price: "14.90", image_url: "/media/mainbar-photo-7.jpg" },
-  { category: "GESCHMACKSSACHEN", name: "Sandwich: Thunfisch", description: "Thunfisch, Tomate, Gurke, Spiegelei", price: "14.90", image_url: "/media/mainbar-photo-11.jpg" },
-  { category: "GESCHMACKSSACHEN", name: "Sandwich: Avocado Mozzarella", description: "Avocado, Rucola, Tomate, Mozzarella, Hausgemachtes Pesto", price: "13.90", image_url: "/media/mainbar-photo-11.jpg" },
-  { category: "GESCHMACKSSACHEN", name: "Sandwich: Avocado Bacon", description: "Avocado, Rucola, Tomate, Mozzarella, Hausgemachtes Pesto, Bacon", price: "14.90", image_url: "/media/mainbar-photo-11.jpg" },
-  { category: "GESCHMACKSSACHEN", name: "Sandwich: Hähnchenfleisch", description: "Hähnchenfleisch, Tomate, Gurke, Bacon, Salat, Spiegelei, Mainbarsoße", price: "15.50", image_url: "/media/mainbar-photo-11.jpg" },
-  { category: "GESCHMACKSSACHEN", name: "Extra: Mainbar Pommes", description: "Toppe dein Sandwich mit Mainbar Pommes", price: "3.90", image_url: "/media/mainbar-photo-11.jpg" },
-  { category: "WINZERFLADEN", name: "Winzerfladen: Klassisch", description: "Schmand - rote Balsamico-Zwiebeln - fränkischer Bauernspeck, Trauben", price: "13.90", image_url: "/media/mainbar-photo-9.jpg" },
-  { category: "WINZERFLADEN", name: "Winzerfladen: Mediterran", description: "Schmand - Cherry-Tomaten - Rucola - Parma Schinken - hausgemachtes Pesto - Parmesan", price: "14.90", image_url: "/media/mainbar-photo-10.jpg" },
-  { category: "WINZERFLADEN", name: "Winzerfladen: Vegetarisch", description: "Schmand - Rucola - Grillgemüse-Pesto - Parmesan (Auch Vegan Möglich)", price: "14.90", image_url: "/media/mainbar-photo-9.jpg" },
-  { category: "WINZERFLADEN", name: "Winzerfladen: Bruschetta", description: "Schmand - gewürfelte Tomaten - Knoblauch - Olivenöl (Auch Vegan Möglich)", price: "13.90", image_url: "/media/mainbar-photo-10.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Cafe Crema", description: "Groß: 4.80€", price: "3.50", image_url: "/media/mainbar-photo-12.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Cappuccino", description: "Groß: 5.40€", price: "3.90", image_url: "/media/mainbar-photo-13.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Espresso", description: "Doppelter Espresso: 4.40€", price: "2.80", image_url: "/media/mainbar-photo-12.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Espresso Macchiato", description: "", price: "3.00", image_url: "/media/mainbar-photo-12.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Flat White", description: "", price: "5.00", image_url: "/media/mainbar-photo-14.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Latte Macchiato", description: "", price: "4.80", image_url: "/media/mainbar-photo-14.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Milchkaffee", description: "", price: "4.80", image_url: "/media/mainbar-photo-14.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Filterkaffee Pott", description: "", price: "4.80", image_url: "/media/mainbar-photo-12.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Chai Latte", description: "Tiger Spice oder Vanilla (+ Espresso Shot 6.90€)", price: "5.70", image_url: "/media/mainbar-photo-15.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Trinkschokolade", description: "", price: "5.40", image_url: "/media/mainbar-photo-15.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Tasse Tee", description: "Versch. Sorten von MEE TEE: Beerenstark, Earl Grey, Minze, Rooibos Orange, Chai Tee oder Grüner Tee", price: "4.50", image_url: "/media/mainbar-photo-15.jpg" },
-  { category: "HEISSGETRÄNKE", name: "Aufpreis Hafermilch", description: "", price: "0.50", image_url: "/media/mainbar-photo-12.jpg" },
-  { category: "ALKOHOLFREI", name: "Rhön Sprudel", description: "Leise oder laut (0,25l / 0,75l 5.90€)", price: "4.50", image_url: "/media/mainbar-photo-16.jpg" },
-  { category: "ALKOHOLFREI", name: "Fritz Kola", description: "Normal oder zuckerfrei (0,33l)", price: "4.40", image_url: "/media/mainbar-photo-16.jpg" },
-  { category: "ALKOHOLFREI", name: "Orangina", description: "Rot oder gelb (0,25l)", price: "4.50", image_url: "/media/mainbar-photo-16.jpg" },
-  { category: "ALKOHOLFREI", name: "Soda Lemon", description: "(0,33l)", price: "4.50", image_url: "/media/mainbar-photo-16.jpg" },
-  { category: "ALKOHOLFREI", name: "Saft Schorle", description: "Apfel oder Johannisbeere (0,25l / 0,40l 4.90€)", price: "3.30", image_url: "/media/mainbar-photo-16.jpg" },
-  { category: "ALKOHOLFREI", name: "Orangensaft", description: "Frisch gepresst (0,25l)", price: "5.90", image_url: "/media/mainbar-photo-16.jpg" },
-  { category: "ALKOHOLFREI", name: "Thomas Henry", description: "Tonic Water, Bitter Lemon oder Pink Grapefruit (0,20l)", price: "4.50", image_url: "/media/mainbar-photo-16.jpg" },
-  { category: "ALKOHOLFREI", name: "Hausgemachte Limonade", description: "Zitrone-Ingwer-Minze oder Himbeer-Rosmarin (0,40l)", price: "5.60", image_url: "/media/mainbar-photo-16.jpg" },
-  { category: "APERITIF & BIER", name: "Mainbar Spritz", description: "Hausgemachter Zitronen-Ingwer-Sirup - Secco - Zitrone (0,25l)", price: "7.40", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Aperol Spritz", description: "Aperol - Secco - Orange (0,25l)", price: "6.90", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Limoncello Spritz", description: "Limoncello - Secco - Zitrone (0,25l)", price: "6.90", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Campari Spritz", description: "Campari - Secco - Orange (0,25l)", price: "6.90", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Sarti Spritz", description: "Sarti (Blutorangenlikör) - Secco - Bitter Lemon (0,25l)", price: "7.40", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Belsazar Spritz", description: "Belsazar Vermouth Rose - Secco - Soda - Orange (0,25l)", price: "7.40", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Crodino Spritz", description: "Alkoholfrei - Crodino - Soda - Orange (0,25l)", price: "5.90", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Mainbar Secco", description: "trocken (0,10l)", price: "4.90", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Pils, Schlapper Seppel", description: "(0,33l)", price: "4.50", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Helles, Bayreuther", description: "(0,33l)", price: "4.50", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Naturtrübes Radler", description: "(0,50l)", price: "4.90", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Hefeweizen", description: "Auch alkoholfrei (0,50l)", price: "4.90", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "APERITIF & BIER", name: "Bayreuther Alk. Frei", description: "(0,50l)", price: "4.90", image_url: "/media/mainbar-photo-17.jpg" },
-  { category: "WEINE & LONGDRINKS", name: "Silvaner", description: "Trocken. Weingut Schmitt aus Bergtheim (0,25l)", price: "7.20", image_url: "/media/mainbar-photo-19.jpg" },
-  { category: "WEINE & LONGDRINKS", name: "Pinot Grigio", description: "Trocken (0,25l)", price: "7.50", image_url: "/media/mainbar-photo-19.jpg" },
-  { category: "WEINE & LONGDRINKS", name: "Scheurebe", description: "Halbtrocken (0,25l)", price: "7.50", image_url: "/media/mainbar-photo-19.jpg" },
-  { category: "WEINE & LONGDRINKS", name: "Carbanet Dorsa", description: "Rot, Trocken (0,25l)", price: "8.50", image_url: "/media/mainbar-photo-19.jpg" },
-  { category: "WEINE & LONGDRINKS", name: "Negroni", description: "Tanqueray - Campari - Vermouth Rosso", price: "8.20", image_url: "/media/mainbar-photo-18.jpg" },
-  { category: "WEINE & LONGDRINKS", name: "Espresso MainTini", description: "Absolut Vodka - Kahlua Kaffee Likör - Espresso", price: "8.20", image_url: "/media/mainbar-photo-18.jpg" },
-  { category: "WEINE & LONGDRINKS", name: "Absolut Vodka", description: "Mit Red Bull, Bitter Lemon oder Soda", price: "7.90", image_url: "/media/mainbar-photo-18.jpg" },
-  { category: "WEINE & LONGDRINKS", name: "Tanqueray - London Dry", description: "With Tonic Water. Aromen: Wacholder, Zitrone, Limette", price: "7.90", image_url: "/media/mainbar-photo-18.jpg" },
-  { category: "WEINE & LONGDRINKS", name: "Saisonale Winzerbrände", description: "Weingut Schmitt/Bergtheim (2cl)", price: "4.00", image_url: "/media/mainbar-photo-18.jpg" }
-];
-
 export default function AdminPortal() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -94,7 +22,6 @@ export default function AdminPortal() {
   // Data State
   const [bookings, setBookings] = useState<any[]>([]);
   const [menuItems, setMenuItems] = useState<any[]>([]);
-  const [isSeeding, setIsSeeding] = useState(false);
   
   // Menu Form State
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
@@ -225,24 +152,6 @@ export default function AdminPortal() {
   const handleDeleteClick = async (id: string) => {
     if (window.confirm("Möchten Sie dieses Gericht wirklich löschen?")) {
       await deleteDoc(doc(db, "menu", id));
-    }
-  };
-
-  // --- DATABASE SEEDER ---
-  const handleSeedDatabase = async () => {
-    if (!window.confirm("ACHTUNG: Dies fügt alle 45 Standardgerichte zur Datenbank hinzu. Klicken Sie nur EINMAL. Fortfahren?")) return;
-    
-    setIsSeeding(true);
-    try {
-      for (const item of firestoreMenuData) {
-        await addDoc(collection(db, "menu"), item);
-      }
-      alert("Erfolg! Alle Gerichte wurden in die Datenbank übertragen.");
-    } catch (error) {
-      console.error("Error seeding database:", error);
-      alert("Fehler beim Übertragen der Daten.");
-    } finally {
-      setIsSeeding(false);
     }
   };
 
@@ -444,14 +353,6 @@ export default function AdminPortal() {
               <p className="text-[#a0a0a0] text-sm">Verwalten Sie Ihre Speisekarte in Echtzeit.</p>
               
               <div className="flex gap-4">
-                <button 
-                  onClick={handleSeedDatabase}
-                  disabled={isSeeding}
-                  className={`px-4 py-2.5 rounded-full font-bold uppercase tracking-widest text-xs transition-colors shadow-sm ${isSeeding ? "bg-gray-300 text-gray-500" : "bg-red-500 hover:bg-red-600 text-white"}`}
-                >
-                  {isSeeding ? "Wird geladen..." : "Datenbank automatisch füllen"}
-                </button>
-                
                 <button 
                   onClick={() => setIsMenuModalOpen(true)}
                   className="bg-[#cda1b1] text-[#353941] px-6 py-2.5 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-[#ebd2db] transition-colors shadow-sm"
