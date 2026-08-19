@@ -61,10 +61,10 @@ export default function UnifiedHomePage() {
       if (!video) return;
 
       video.muted = true;
-      video.defaultMuted = true;
       video.playsInline = true;
 
       const playPromise = video.play();
+
       if (playPromise !== undefined) {
         playPromise.catch(() => {});
       }
@@ -269,7 +269,6 @@ export default function UnifiedHomePage() {
             src="/media/mainbar-hero.mp4"
             autoPlay
             muted
-            defaultMuted
             loop
             playsInline
             preload="auto"
@@ -283,6 +282,7 @@ export default function UnifiedHomePage() {
             }}
             onError={(e) => console.error("Hero-Video konnte nicht geladen werden:", e.currentTarget.error)}
           />
+
           {/* Scrim */}
           <div className="absolute inset-0 bg-[#353941]/60 -z-10" />
 
@@ -336,7 +336,6 @@ export default function UnifiedHomePage() {
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               autoPlay
               muted
-              defaultMuted
               loop
               playsInline
               preload="auto"
@@ -350,6 +349,7 @@ export default function UnifiedHomePage() {
               }}
             />
           </motion.div>
+
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.1 }} className="relative w-full h-full border-b-2 md:border-b-4 border-white overflow-hidden group">
             <video
               ref={(el) => {
@@ -359,7 +359,6 @@ export default function UnifiedHomePage() {
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               autoPlay
               muted
-              defaultMuted
               loop
               playsInline
               preload="auto"
@@ -373,6 +372,7 @@ export default function UnifiedHomePage() {
               }}
             />
           </motion.div>
+
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.2 }} className="relative w-full h-full border-r-2 md:border-r-4 border-white overflow-hidden group">
             <video
               ref={(el) => {
@@ -382,7 +382,6 @@ export default function UnifiedHomePage() {
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               autoPlay
               muted
-              defaultMuted
               loop
               playsInline
               preload="auto"
@@ -396,6 +395,7 @@ export default function UnifiedHomePage() {
               }}
             />
           </motion.div>
+
           <div className="w-full h-full bg-[#cda1b1] flex items-center justify-center p-6 md:p-12 text-center">
             <p className="text-white font-serif italic text-lg md:text-2xl lg:text-3xl leading-relaxed drop-shadow-sm">
               "Bei uns ist Qualität das Produkt der Liebe zum Detail."
