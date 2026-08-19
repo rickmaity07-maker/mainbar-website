@@ -53,28 +53,43 @@ export default function UnifiedHomePage() {
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Safari & Mobile Autoplay Global Listener
+  // Mobile autoplay handling
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+
+  const forcePlayVideos = () => {
+    videoRefs.current.forEach((video) => {
+      if (!video) return;
+
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
+      }
+    });
+  };
+
   useEffect(() => {
-    const handleUserInteraction = () => {
-      const videos = document.querySelectorAll("video");
-      videos.forEach((video) => {
-        video.muted = true;
-        video.play().catch(() => {});
+    const startVideos = () => {
+      requestAnimationFrame(() => {
+        forcePlayVideos();
       });
     };
 
-    // Try playing immediately
-    handleUserInteraction();
+    startVideos();
 
-    // Listen to any touch/click event on iOS Safari to force-start all videos
-    window.addEventListener("touchstart", handleUserInteraction, { once: true });
-    window.addEventListener("click", handleUserInteraction, { once: true });
-    window.addEventListener("scroll", handleUserInteraction, { once: true });
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        startVideos();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      window.removeEventListener("touchstart", handleUserInteraction);
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("scroll", handleUserInteraction);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
@@ -247,13 +262,25 @@ export default function UnifiedHomePage() {
           
           {/* Background video */}
           <video
+            ref={(el) => {
+              videoRefs.current[0] = el;
+            }}
             className="absolute inset-0 w-full h-full object-cover -z-10"
             src="/media/mainbar-hero.mp4"
             autoPlay
             muted
+            defaultMuted
             loop
             playsInline
             preload="auto"
+            onLoadedData={(e) => {
+              e.currentTarget.muted = true;
+              e.currentTarget.play().catch(() => {});
+            }}
+            onCanPlay={(e) => {
+              e.currentTarget.muted = true;
+              e.currentTarget.play().catch(() => {});
+            }}
             onError={(e) => console.error("Hero-Video konnte nicht geladen werden:", e.currentTarget.error)}
           />
           {/* Scrim */}
@@ -302,35 +329,71 @@ export default function UnifiedHomePage() {
         <div className="relative z-10 w-full lg:w-1/2 min-h-[50vh] lg:min-h-svh grid grid-cols-2 grid-rows-2 bg-white">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="relative w-full h-full border-r-2 border-b-2 md:border-r-4 md:border-b-4 border-white overflow-hidden group">
             <video
+              ref={(el) => {
+                videoRefs.current[1] = el;
+              }}
               src="/media/video-1.mp4"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               autoPlay
               muted
+              defaultMuted
               loop
               playsInline
               preload="auto"
+              onLoadedData={(e) => {
+                e.currentTarget.muted = true;
+                e.currentTarget.play().catch(() => {});
+              }}
+              onCanPlay={(e) => {
+                e.currentTarget.muted = true;
+                e.currentTarget.play().catch(() => {});
+              }}
             />
           </motion.div>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.1 }} className="relative w-full h-full border-b-2 md:border-b-4 border-white overflow-hidden group">
             <video
+              ref={(el) => {
+                videoRefs.current[2] = el;
+              }}
               src="/media/video-2.mp4"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               autoPlay
               muted
+              defaultMuted
               loop
               playsInline
               preload="auto"
+              onLoadedData={(e) => {
+                e.currentTarget.muted = true;
+                e.currentTarget.play().catch(() => {});
+              }}
+              onCanPlay={(e) => {
+                e.currentTarget.muted = true;
+                e.currentTarget.play().catch(() => {});
+              }}
             />
           </motion.div>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.2 }} className="relative w-full h-full border-r-2 md:border-r-4 border-white overflow-hidden group">
             <video
+              ref={(el) => {
+                videoRefs.current[3] = el;
+              }}
               src="/media/video-3.mp4"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               autoPlay
               muted
+              defaultMuted
               loop
               playsInline
               preload="auto"
+              onLoadedData={(e) => {
+                e.currentTarget.muted = true;
+                e.currentTarget.play().catch(() => {});
+              }}
+              onCanPlay={(e) => {
+                e.currentTarget.muted = true;
+                e.currentTarget.play().catch(() => {});
+              }}
             />
           </motion.div>
           <div className="w-full h-full bg-[#cda1b1] flex items-center justify-center p-6 md:p-12 text-center">
