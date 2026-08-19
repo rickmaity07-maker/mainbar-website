@@ -17,6 +17,17 @@ const menuCategories = [
   "WEINE & LONGDRINKS"
 ];
 
+// Local image mapper: Directly uses your files in public/media based on the tab
+const tabImages: Record<string, string> = {
+  "FRÜHSTÜCK": "/media/breakfast.jpg",
+  "GESCHMACKSSACHEN": "/media/snacks.jpg",
+  "WINZERFLADEN": "/media/flatbread.jpg",
+  "HEISSGETRÄNKE": "/media/hot-drinks.jpg",
+  "ALKOHOLFREI": "/media/cold-drinks.jpg",
+  "APERITIF & BIER": "/media/beer-aperitif.jpg",
+  "WEINE & LONGDRINKS": "/media/wine-longdrinks.jpg"
+};
+
 // Natural fallback reviews if Firebase is empty
 const fallbackReviews = [
   { id: "1", author: "Lisa K.", text: "Super schönes Café! Der Kaffee ist extrem lecker und die Winzerfladen sind ein Traum. Komme gerne in der Mittagspause her.", rating: 5 },
@@ -113,7 +124,7 @@ const BackgroundVideo = ({ src, fallbackGif, className }: { src: string; fallbac
 export default function UnifiedHomePage() {
   const [activeTab, setActiveTab] = useState(menuCategories[0]);
   const [firestoreMenuData, setFirestoreMenuData] = useState<any[]>([]);
-  const [randomImage, setRandomImage] = useState<string | null>(null);
+  const [currentMenuImage, setCurrentMenuImage] = useState<string | null>(null);
   
   const [reviews, setReviews] = useState<any[]>([]);
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
@@ -164,18 +175,10 @@ export default function UnifiedHomePage() {
 
   const activeItems = firestoreMenuData.filter(item => item.category === activeTab);
 
+  // Strictly pop up the local image based on the tab selected
   useEffect(() => {
-    const imagesForTab = activeItems
-      .filter(item => item.image_url)
-      .map(item => item.image_url);
-
-    if (imagesForTab.length > 0) {
-      const randomIndex = Math.floor(Math.random() * imagesForTab.length);
-      setRandomImage(imagesForTab[randomIndex]);
-    } else {
-      setRandomImage(null);
-    }
-  }, [activeTab, firestoreMenuData]);
+    setCurrentMenuImage(tabImages[activeTab] || null);
+  }, [activeTab]);
 
   const scrollToMenu = () => {
     const menuSection = document.getElementById("menu-section");
@@ -282,7 +285,6 @@ export default function UnifiedHomePage() {
         {/* Left Panel - Branding + Video */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center py-24 px-6 lg:p-12 text-center relative z-10 grow overflow-hidden">
           
-          {/* Smart Video Component with GIF Fallback */}
           <BackgroundVideo 
             src="/media/mainbar-hero.mp4" 
             fallbackGif="/media/mainbar-hero.gif"
@@ -330,7 +332,7 @@ export default function UnifiedHomePage() {
           </motion.div>
         </div>
 
-        {/* Right Panel - Dynamic Grid */}
+        {/* Right Panel - Dynamic Grid (Videos with GIF fallbacks - Intact) */}
         <div className="relative z-10 w-full lg:w-1/2 min-h-[50vh] lg:min-h-svh grid grid-cols-2 grid-rows-2 bg-white">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="relative w-full h-full border-r-2 border-b-2 md:border-r-4 md:border-b-4 border-white overflow-hidden group">
             <BackgroundVideo 
@@ -436,14 +438,14 @@ export default function UnifiedHomePage() {
               className="relative bg-white border border-[#cda1b1]/30 rounded-3xl p-6 md:p-16 shadow-sm min-h-100"
             >
               
-              {randomImage && (
+              {currentMenuImage && (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
                   animate={{ opacity: 1, scale: 1, rotate: 3 }}
                   transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 20 }}
                   className="hidden md:block absolute -top-8 -right-8 w-48 h-48 rounded-2xl overflow-hidden shadow-xl border-4 border-white z-20 pointer-events-none"
                 >
-                  <Image src={randomImage} alt="Menu Highlight" fill sizes="(max-width: 768px) 0vw, 200px" className="object-cover" />
+                  <Image src={currentMenuImage} alt={`${activeTab} Highlight`} fill sizes="(max-width: 768px) 0vw, 200px" className="object-cover" />
                 </motion.div>
               )}
 
