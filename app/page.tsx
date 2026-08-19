@@ -53,23 +53,24 @@ export default function UnifiedHomePage() {
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Hero background video: pause it for visitors who prefer reduced motion
+  // Hero background video ref
   const heroVideoRef = useRef<HTMLVideoElement>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
 
+  // Force autoplay via JavaScript on mount for mobile browsers
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    const allVideos = document.querySelectorAll("video");
+    allVideos.forEach((vid) => {
+      vid.muted = true;
+      vid.play().catch(() => {
+        // Fallback for strict mobile power/battery saving modes
+        const handleTouch = () => {
+          vid.play().catch(() => {});
+          window.removeEventListener("touchstart", handleTouch);
+        };
+        window.addEventListener("touchstart", handleTouch, { once: true });
+      });
+    });
   }, []);
-
-  useEffect(() => {
-    if (!heroVideoRef.current) return;
-    if (reducedMotion) heroVideoRef.current.pause();
-    else heroVideoRef.current.play().catch(() => {});
-  }, [reducedMotion]);
 
   // 1. Fetch Menu from Firebase
   useEffect(() => {
@@ -238,7 +239,7 @@ export default function UnifiedHomePage() {
         {/* Left Panel - Branding + Video */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center py-24 px-6 lg:p-12 text-center relative z-10 grow overflow-hidden">
           
-          {/* Background video with mobile autoPlay loop attributes */}
+          {/* Background video */}
           <video
             ref={heroVideoRef}
             className="absolute inset-0 w-full h-full object-cover -z-10"
@@ -248,7 +249,6 @@ export default function UnifiedHomePage() {
             loop
             playsInline
             preload="auto"
-            onError={(e) => console.error("Hero-Video konnte nicht geladen werden:", e.currentTarget.error)}
           />
           {/* Scrim */}
           <div className="absolute inset-0 bg-[#353941]/60 -z-10" />
@@ -292,7 +292,7 @@ export default function UnifiedHomePage() {
           </motion.div>
         </div>
 
-        {/* Right Panel - Dynamic Grid (videos with mobile autoPlay loop attributes) */}
+        {/* Right Panel - Dynamic Grid (videos) */}
         <div className="relative z-10 w-full lg:w-1/2 min-h-[50vh] lg:min-h-svh grid grid-cols-2 grid-rows-2 bg-white">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="relative w-full h-full border-r-2 border-b-2 md:border-r-4 md:border-b-4 border-white overflow-hidden group">
             <video
