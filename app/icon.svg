@@ -1,0 +1,20 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="96" fill="#353941" />
+
+  <!-- Ring-stain motif (matches the site's hero) -->
+  <circle cx="100" cy="100" r="88" fill="none" stroke="#cda1b1" stroke-width="1" opacity="0.45" />
+  <circle cx="100" cy="100" r="78" fill="none" stroke="#cda1b1" stroke-width="1" opacity="0.3" />
+
+  <!-- "MB" monogram -->
+  <text
+    x="100"
+    y="114"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-family="'Brush Script MT', 'Segoe Script', 'Lucida Handwriting', cursive"
+    font-style="italic"
+    font-size="112"
+    fill="#cda1b1"
+  >MB</text>
+</svg>

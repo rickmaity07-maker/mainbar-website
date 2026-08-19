@@ -17,8 +17,8 @@ const menuCategories = [
   "WEINE & LONGDRINKS"
 ];
 
-// Local image mapper: Directly uses your files in public/media based on the tab
-const tabImages: Record<string, string> = {
+// Smart mapper mapping menu tabs directly to your downloaded images
+const defaultTabImages: Record<string, string> = {
   "FRÜHSTÜCK": "/media/breakfast.jpg",
   "GESCHMACKSSACHEN": "/media/snacks.jpg",
   "WINZERFLADEN": "/media/flatbread.jpg",
@@ -67,20 +67,19 @@ const BackgroundVideo = ({ src, fallbackGif, className }: { src: string; fallbac
       try {
         await video.play();
       } catch (error) {
-        // If we arrive here, the OS (Battery Saver) blocked the video.
         console.warn("Mobile autoplay blocked by OS. Swapping to fallback GIF.");
-        setVideoBlocked(true); // Triggers the swap to the image tag
+        setVideoBlocked(true);
       }
     };
 
     attemptPlay();
 
-    // Secondary fallback: if they interact, try playing the video again if the GIF is showing
+    // Secondary fallback interaction
     const handleInteraction = () => {
       if (videoBlocked && video) {
         video.muted = true;
         video.play().then(() => {
-          setVideoBlocked(false); // Swap back to HD video once allowed
+          setVideoBlocked(false);
         }).catch(() => {});
       }
     };
@@ -110,7 +109,6 @@ const BackgroundVideo = ({ src, fallbackGif, className }: { src: string; fallbac
           preload="auto"
         />
       ) : (
-        // The ultimate workaround: A GIF is treated as an image and will ALWAYS autoplay
         <img
           src={fallbackGif}
           alt="Background animation fallback"
@@ -177,7 +175,7 @@ export default function UnifiedHomePage() {
 
   // Strictly pop up the local image based on the tab selected
   useEffect(() => {
-    setCurrentMenuImage(tabImages[activeTab] || null);
+    setCurrentMenuImage(defaultTabImages[activeTab] || null);
   }, [activeTab]);
 
   const scrollToMenu = () => {
@@ -332,7 +330,7 @@ export default function UnifiedHomePage() {
           </motion.div>
         </div>
 
-        {/* Right Panel - Dynamic Grid (Videos with GIF fallbacks - Intact) */}
+        {/* Right Panel - Dynamic Grid */}
         <div className="relative z-10 w-full lg:w-1/2 min-h-[50vh] lg:min-h-svh grid grid-cols-2 grid-rows-2 bg-white">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="relative w-full h-full border-r-2 border-b-2 md:border-r-4 md:border-b-4 border-white overflow-hidden group">
             <BackgroundVideo 
@@ -355,8 +353,20 @@ export default function UnifiedHomePage() {
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
             />
           </motion.div>
-          <div className="w-full h-full bg-[#cda1b1] flex items-center justify-center p-6 md:p-12 text-center">
-            <p className="text-white font-serif italic text-lg md:text-2xl lg:text-3xl leading-relaxed drop-shadow-sm">
+          
+          {/* Quote Box with Background Image and Dark Overlay */}
+          <div className="relative w-full h-full flex items-center justify-center p-6 md:p-12 text-center overflow-hidden">
+            <Image 
+              src="/media/grid-4.jpg" 
+              alt="Quote Background" 
+              fill 
+              sizes="(max-width: 1024px) 50vw, 25vw"
+              className="object-cover z-0" 
+            />
+            {/* Dark overlay to ensure text is bright and readable */}
+            <div className="absolute inset-0 bg-[#353941]/70 z-0"></div>
+            
+            <p className="relative z-10 text-white font-serif italic text-lg md:text-2xl lg:text-3xl leading-relaxed drop-shadow-xl shadow-black font-medium">
               "Bei uns ist Qualität das Produkt der Liebe zum Detail."
             </p>
           </div>
@@ -473,6 +483,84 @@ export default function UnifiedHomePage() {
           </AnimatePresence>
         </div>
       </section>
+
+      {/* ================= FOOTER SECTION ================= */}
+      <footer className="bg-[#353941] text-white py-16 px-6 md:px-12 border-t border-[#cda1b1]/20">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+          
+          {/* Branding */}
+          <div className="flex flex-col items-center md:items-start">
+            <h2 className="font-[family-name:var(--font-script)] text-4xl text-[#cda1b1] mb-4">MainBar</h2>
+            <p className="text-[#a0a0a0] text-xs leading-relaxed text-center md:text-left">
+              Qualität ist das Produkt<br />der Liebe zum Detail.
+            </p>
+          </div>
+
+          {/* Contact & Location */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <h3 className="text-[10px] tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">Besuchen Sie uns</h3>
+            <a 
+              href="https://maps.app.goo.gl/YourGoogleMapsLinkHere" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm text-gray-300 hover:text-[#cda1b1] mb-3 transition-colors"
+            >
+              Spitalstraße 19<br />97421 Schweinfurt
+            </a>
+            <a href="tel:+491702278096" className="text-sm text-gray-300 hover:text-[#cda1b1] transition-colors">
+              +49 170 2278096
+            </a>
+          </div>
+
+          {/* Hours */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <h3 className="text-[10px] tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">Öffnungszeiten</h3>
+            <p className="text-sm text-gray-300 mb-2">Di - Sa: 09:30 - 17:00 Uhr</p>
+            <p className="text-sm text-gray-300">So & Mo: Geschlossen</p>
+          </div>
+
+          {/* Social */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <h3 className="text-[10px] tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">Social Media</h3>
+            <a 
+              href="https://www.instagram.com/mainbar_sw/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm text-gray-300 hover:text-[#cda1b1] transition-colors flex items-center gap-2 group"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className="group-hover:scale-110 transition-transform"
+              >
+                <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                <path d="M16.11 7.5v.01"/>
+                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+              </svg>
+              Instagram
+            </a>
+          </div>
+
+        </div>
+
+        {/* Copyright Bar */}
+        <div className="max-w-6xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-[10px] text-[#a0a0a0] uppercase tracking-widest">
+            © {new Date().getFullYear()} MainBar Schweinfurt
+          </p>
+          <div className="flex gap-6">
+            <Link href="/impressum" className="text-[10px] text-[#a0a0a0] hover:text-white uppercase tracking-widest transition-colors">Impressum</Link>
+            <Link href="/datenschutz" className="text-[10px] text-[#a0a0a0] hover:text-white uppercase tracking-widest transition-colors">Datenschutz</Link>
+          </div>
+        </div>
+      </footer>
 
       {/* ====== THE SECRET ADMIN DOOR ====== */}
       <Link 

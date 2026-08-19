@@ -23,9 +23,6 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "MainBar | Schweinfurt",
   description: "Bei uns ist Qualität das Produkt der Liebe zum Detail.",
-  icons: {
-    icon: '/favicon.ico',
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
