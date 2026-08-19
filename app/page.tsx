@@ -53,25 +53,28 @@ export default function UnifiedHomePage() {
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Force video playback on mobile devices upon load and interaction
+  // Safari & Mobile Autoplay Global Listener
   useEffect(() => {
-    const playVideos = () => {
+    const handleUserInteraction = () => {
       const videos = document.querySelectorAll("video");
       videos.forEach((video) => {
         video.muted = true;
-        video.play().catch((err) => {
-          console.log("Autoplay prevented, retrying on interaction:", err);
-        });
+        video.play().catch(() => {});
       });
     };
 
-    playVideos();
-    window.addEventListener("touchstart", playVideos, { once: true });
-    window.addEventListener("click", playVideos, { once: true });
+    // Try playing immediately
+    handleUserInteraction();
+
+    // Listen to any touch/click event on iOS Safari to force-start all videos
+    window.addEventListener("touchstart", handleUserInteraction, { once: true });
+    window.addEventListener("click", handleUserInteraction, { once: true });
+    window.addEventListener("scroll", handleUserInteraction, { once: true });
 
     return () => {
-      window.removeEventListener("touchstart", playVideos);
-      window.removeEventListener("click", playVideos);
+      window.removeEventListener("touchstart", handleUserInteraction);
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("scroll", handleUserInteraction);
     };
   }, []);
 
