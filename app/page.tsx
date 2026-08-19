@@ -238,7 +238,7 @@ export default function UnifiedHomePage() {
         {/* Left Panel - Branding + Video */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center py-24 px-6 lg:p-12 text-center relative z-10 grow overflow-hidden">
           
-          {/* Background video — fills the left panel completely, no grey bars */}
+          {/* Background video with mobile autoPlay loop attributes */}
           <video
             ref={heroVideoRef}
             className="absolute inset-0 w-full h-full object-cover -z-10"
@@ -292,7 +292,7 @@ export default function UnifiedHomePage() {
           </motion.div>
         </div>
 
-        {/* Right Panel - Dynamic Grid (videos) */}
+        {/* Right Panel - Dynamic Grid (videos with mobile autoPlay loop attributes) */}
         <div className="relative z-10 w-full lg:w-1/2 min-h-[50vh] lg:min-h-svh grid grid-cols-2 grid-rows-2 bg-white">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="relative w-full h-full border-r-2 border-b-2 md:border-r-4 md:border-b-4 border-white overflow-hidden group">
             <video
