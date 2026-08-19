@@ -53,23 +53,26 @@ export default function UnifiedHomePage() {
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Hero background video ref
-  const heroVideoRef = useRef<HTMLVideoElement>(null);
-
-  // Force autoplay via JavaScript on mount for mobile browsers
+  // Force video playback on mobile devices upon load and interaction
   useEffect(() => {
-    const allVideos = document.querySelectorAll("video");
-    allVideos.forEach((vid) => {
-      vid.muted = true;
-      vid.play().catch(() => {
-        // Fallback for strict mobile power/battery saving modes
-        const handleTouch = () => {
-          vid.play().catch(() => {});
-          window.removeEventListener("touchstart", handleTouch);
-        };
-        window.addEventListener("touchstart", handleTouch, { once: true });
+    const playVideos = () => {
+      const videos = document.querySelectorAll("video");
+      videos.forEach((video) => {
+        video.muted = true;
+        video.play().catch((err) => {
+          console.log("Autoplay prevented, retrying on interaction:", err);
+        });
       });
-    });
+    };
+
+    playVideos();
+    window.addEventListener("touchstart", playVideos, { once: true });
+    window.addEventListener("click", playVideos, { once: true });
+
+    return () => {
+      window.removeEventListener("touchstart", playVideos);
+      window.removeEventListener("click", playVideos);
+    };
   }, []);
 
   // 1. Fetch Menu from Firebase
@@ -241,7 +244,6 @@ export default function UnifiedHomePage() {
           
           {/* Background video */}
           <video
-            ref={heroVideoRef}
             className="absolute inset-0 w-full h-full object-cover -z-10"
             src="/media/mainbar-hero.mp4"
             autoPlay
@@ -249,6 +251,7 @@ export default function UnifiedHomePage() {
             loop
             playsInline
             preload="auto"
+            onError={(e) => console.error("Hero-Video konnte nicht geladen werden:", e.currentTarget.error)}
           />
           {/* Scrim */}
           <div className="absolute inset-0 bg-[#353941]/60 -z-10" />
