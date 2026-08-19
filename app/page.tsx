@@ -195,7 +195,7 @@ export default function UnifiedHomePage() {
                 animate={{ opacity: 1, scale: 1, y: 0 }} 
                 exit={{ opacity: 0, scale: 0.95, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="absolute top-full left-0 mt-4 w-[calc(100vw-3rem)] max-w-[340px] bg-white rounded-3xl p-6 shadow-2xl border border-gray-100 origin-top-left"
+                className="absolute top-full left-0 mt-4 w-[calc(100vw-3rem)] max-w-85 bg-white rounded-3xl p-6 shadow-2xl border border-gray-100 origin-top-left"
               >
                 <div className="text-center mb-5">
                   <h3 className="font-serif text-xl text-[#2d2d2d] mb-1">Wie war dein Besuch?</h3>
@@ -271,7 +271,7 @@ export default function UnifiedHomePage() {
 
           <motion.h2 
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-[#9ba4b5] tracking-[0.25em] md:tracking-[0.3em] uppercase text-xs md:text-sm font-medium mt-12 md:mt-16 mb-4"
+            className="text-white tracking-[0.25em] md:tracking-[0.3em] uppercase text-xs md:text-sm font-medium mt-12 md:mt-16 mb-4"
           >
             Café & Patisserie
           </motion.h2>
@@ -286,7 +286,7 @@ export default function UnifiedHomePage() {
           </motion.button>
           
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-8 p-2">
-            <Link href="/booking" className="text-[#9ba4b5] hover:text-white uppercase tracking-widest text-[10px] md:text-xs transition-colors border-b border-transparent hover:border-white pb-1">
+            <Link href="/booking" className="text-gray-100 hover:text-white uppercase tracking-widest text-[10px] md:text-xs transition-colors border-b border-transparent hover:border-white pb-1">
               Event & Catering Buchen
             </Link>
           </motion.div>
@@ -354,7 +354,7 @@ export default function UnifiedHomePage() {
             {reviews.map((review) => (
               <div 
                 key={review.id} 
-                className="snap-center shrink-0 w-[280px] md:w-[350px] bg-[#faf8f5] p-8 rounded-3xl border border-[#cda1b1]/20 shadow-sm flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300"
+                className="snap-center shrink-0 w-70 md:w-87.5 bg-[#faf8f5] p-8 rounded-3xl border border-[#cda1b1]/20 shadow-sm flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300"
               >
                 <div>
                   <div className="text-[#cda1b1] text-lg mb-4 tracking-widest">
