@@ -26,7 +26,6 @@ const fallbackReviews = [
   { id: "5", author: "Sophie M.", text: "Sehr entspannte Atmosphäre. Perfekt zum Abschalten. Die hausgemachte Limonade ist sehr zu empfehlen.", rating: 4 }
 ];
 
-// Helper function to shuffle reviews
 const shuffleArray = (array: any[]) => {
   const newArr = [...array];
   for (let i = newArr.length - 1; i > 0; i--) {
@@ -36,12 +35,86 @@ const shuffleArray = (array: any[]) => {
   return newArr;
 };
 
+// =========================================================================
+// BULLETPROOF MOBILE VIDEO COMPONENT (WITH GIF FALLBACK)
+// =========================================================================
+const BackgroundVideo = ({ src, fallbackGif, className }: { src: string; fallbackGif: string; className: string }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoBlocked, setVideoBlocked] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Force properties required by iOS Safari directly on the DOM node
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+
+    // Attempt to play immediately
+    const attemptPlay = async () => {
+      try {
+        await video.play();
+      } catch (error) {
+        // If we arrive here, the OS (Battery Saver) blocked the video.
+        console.warn("Mobile autoplay blocked by OS. Swapping to fallback GIF.");
+        setVideoBlocked(true); // Triggers the swap to the image tag
+      }
+    };
+
+    attemptPlay();
+
+    // Secondary fallback: if they interact, try playing the video again if the GIF is showing
+    const handleInteraction = () => {
+      if (videoBlocked && video) {
+        video.muted = true;
+        video.play().then(() => {
+          setVideoBlocked(false); // Swap back to HD video once allowed
+        }).catch(() => {});
+      }
+    };
+
+    window.addEventListener("touchstart", handleInteraction, { once: true });
+    window.addEventListener("click", handleInteraction, { once: true });
+    window.addEventListener("scroll", handleInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener("touchstart", handleInteraction);
+      window.removeEventListener("click", handleInteraction);
+      window.removeEventListener("scroll", handleInteraction);
+    };
+  }, [videoBlocked]);
+
+  return (
+    <>
+      {!videoBlocked ? (
+        <video
+          ref={videoRef}
+          src={src}
+          className={className}
+          autoPlay
+          playsInline
+          muted
+          loop
+          preload="auto"
+        />
+      ) : (
+        // The ultimate workaround: A GIF is treated as an image and will ALWAYS autoplay
+        <img
+          src={fallbackGif}
+          alt="Background animation fallback"
+          className={className}
+        />
+      )}
+    </>
+  );
+};
+
 export default function UnifiedHomePage() {
   const [activeTab, setActiveTab] = useState(menuCategories[0]);
   const [firestoreMenuData, setFirestoreMenuData] = useState<any[]>([]);
   const [randomImage, setRandomImage] = useState<string | null>(null);
   
-  // Review States
   const [reviews, setReviews] = useState<any[]>([]);
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,61 +126,28 @@ export default function UnifiedHomePage() {
 
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Safari & Mobile Autoplay Global Listener
-  useEffect(() => {
-    const handleUserInteraction = () => {
-      const videos = document.querySelectorAll("video");
-      videos.forEach((video) => {
-        video.muted = true;
-        video.play().catch(() => {});
-      });
-    };
-
-    // Try playing immediately
-    handleUserInteraction();
-
-    // Listen to any touch/click event on iOS Safari to force-start all videos
-    window.addEventListener("touchstart", handleUserInteraction, { once: true });
-    window.addEventListener("click", handleUserInteraction, { once: true });
-    window.addEventListener("scroll", handleUserInteraction, { once: true });
-
-    return () => {
-      window.removeEventListener("touchstart", handleUserInteraction);
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("scroll", handleUserInteraction);
-    };
-  }, []);
-
-  // 1. Fetch Menu from Firebase
   useEffect(() => {
     const qMenu = query(collection(db, "menu"));
     const unsubMenu = onSnapshot(qMenu, (snapshot) => {
       setFirestoreMenuData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
-
     return () => unsubMenu();
   }, []);
 
-  // 2. Fetch Live Reviews from Firebase (with TypeScript fix)
   useEffect(() => {
     const qReviews = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
     const unsubReviews = onSnapshot(qReviews, (snapshot) => {
       let fetchedReviews: any[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      
-      // Filter reviews: Only 3 stars or more!
       fetchedReviews = fetchedReviews.filter((r: any) => r.rating >= 3);
-      
       if (fetchedReviews.length > 0) {
         setReviews(shuffleArray(fetchedReviews));
       } else {
         setReviews(shuffleArray(fallbackReviews));
       }
     });
-
     return () => unsubReviews();
   }, []);
 
-  // 3. Auto Slider Effect
   useEffect(() => {
     const interval = setInterval(() => {
       if (sliderRef.current) {
@@ -176,9 +216,7 @@ export default function UnifiedHomePage() {
       {/* ================= HERO SECTION ================= */}
       <section className="relative z-0 flex flex-col lg:flex-row min-h-svh w-full bg-[#353941] overflow-hidden">
 
-        {/* ================= FLOATING REVIEW WIDGET (TOP LEFT) ================= */}
         <div className="absolute top-6 left-6 md:top-8 md:left-8 z-50">
-          
           <motion.button
             onClick={() => setIsReviewFormOpen(!isReviewFormOpen)}
             initial={{ opacity: 0, y: -20 }}
@@ -194,7 +232,6 @@ export default function UnifiedHomePage() {
             </span>
           </motion.button>
 
-          {/* Form opens directly under the button */}
           <AnimatePresence>
             {isReviewFormOpen && (
               <motion.div 
@@ -245,18 +282,13 @@ export default function UnifiedHomePage() {
         {/* Left Panel - Branding + Video */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center py-24 px-6 lg:p-12 text-center relative z-10 grow overflow-hidden">
           
-          {/* Background video */}
-          <video
-            className="absolute inset-0 w-full h-full object-cover -z-10"
-            src="/media/mainbar-hero.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            onError={(e) => console.error("Hero-Video konnte nicht geladen werden:", e.currentTarget.error)}
+          {/* Smart Video Component with GIF Fallback */}
+          <BackgroundVideo 
+            src="/media/mainbar-hero.mp4" 
+            fallbackGif="/media/mainbar-hero.gif"
+            className="absolute inset-0 w-full h-full object-cover -z-10" 
           />
-          {/* Scrim */}
+          
           <div className="absolute inset-0 bg-[#353941]/60 -z-10" />
 
           <motion.div 
@@ -298,39 +330,27 @@ export default function UnifiedHomePage() {
           </motion.div>
         </div>
 
-        {/* Right Panel - Dynamic Grid (videos) */}
+        {/* Right Panel - Dynamic Grid */}
         <div className="relative z-10 w-full lg:w-1/2 min-h-[50vh] lg:min-h-svh grid grid-cols-2 grid-rows-2 bg-white">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="relative w-full h-full border-r-2 border-b-2 md:border-r-4 md:border-b-4 border-white overflow-hidden group">
-            <video
-              src="/media/video-1.mp4"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
+            <BackgroundVideo 
+              src="/media/video-1.mp4" 
+              fallbackGif="/media/video-1.gif"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
             />
           </motion.div>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.1 }} className="relative w-full h-full border-b-2 md:border-b-4 border-white overflow-hidden group">
-            <video
-              src="/media/video-2.mp4"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
+            <BackgroundVideo 
+              src="/media/video-2.mp4" 
+              fallbackGif="/media/video-2.gif"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
             />
           </motion.div>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.2 }} className="relative w-full h-full border-r-2 md:border-r-4 border-white overflow-hidden group">
-            <video
-              src="/media/video-3.mp4"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
+            <BackgroundVideo 
+              src="/media/video-3.mp4" 
+              fallbackGif="/media/video-3.gif"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
             />
           </motion.div>
           <div className="w-full h-full bg-[#cda1b1] flex items-center justify-center p-6 md:p-12 text-center">
@@ -341,7 +361,7 @@ export default function UnifiedHomePage() {
         </div>
       </section>
 
-      {/* ================= REVIEWS SECTION (AUTO SLIDER) ================= */}
+      {/* ================= REVIEWS SECTION ================= */}
       <section className="py-16 md:py-24 bg-white overflow-hidden border-b border-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 md:mb-16 px-6">
@@ -352,7 +372,6 @@ export default function UnifiedHomePage() {
             <div className="w-12 h-px bg-[#cda1b1] mx-auto"></div>
           </div>
           
-          {/* Scrollable / Auto-Sliding Container */}
           <div 
             ref={sliderRef}
             className="flex gap-6 overflow-x-auto hide-scrollbar snap-x snap-mandatory px-6 md:px-12 pb-8 scroll-smooth"
