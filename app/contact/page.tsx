@@ -55,7 +55,7 @@ export default function Contact() {
         </div>
       </div>
       <div className="w-full md:w-1/2 h-[50vh] md:h-screen bg-gray-200 relative">
-        <iframe src="https://maps.google.com/maps?q=Spitalstrasse%2019%2097421%20Schweinfurt&t=&z=16&ie=UTF8&iwloc=&output=embed" className="absolute inset-0 w-full h-full border-0" allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="MainBar Location"></iframe>
+        <iframe src="https://maps.google.com/maps?q=Spitalstrasse%2019,%2097421%20Schweinfurt&t=&z=16&ie=UTF8&iwloc=&output=embed" className="absolute inset-0 w-full h-full border-0" allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="MainBar Location"></iframe>
       </div>
     </main>
   );
