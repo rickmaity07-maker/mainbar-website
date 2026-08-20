@@ -18,6 +18,7 @@ export default function AdminPortal() {
   
   // Navigation State ("bookings", "old_bookings", "menu")
   const [activeTab, setActiveTab] = useState("bookings");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Data State
   const [bookings, setBookings] = useState<any[]>([]);
@@ -32,7 +33,7 @@ export default function AdminPortal() {
     description: "",
     price: "",
     image_url: "",
-    isExtra: false // Added Extra Checkbox State
+    isExtra: false
   });
 
   // Login Form State
@@ -70,6 +71,11 @@ export default function AdminPortal() {
     };
   }, [user]);
 
+  // Close mobile menu when tab changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [activeTab]);
+
   // --- AUTH HANDLERS ---
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +96,7 @@ export default function AdminPortal() {
 
   const handleLogout = async () => {
     await signOut(auth);
+    setIsMobileMenuOpen(false);
   };
 
   // --- BOOKING STATUS HANDLER ---
@@ -168,10 +175,14 @@ export default function AdminPortal() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#353941] p-6 relative">
-        <Link href="/" className="absolute top-12 md:top-8 left-6 md:left-8 text-[#a0a0a0] hover:text-[#cda1b1] text-[10px] md:text-xs font-bold tracking-widest uppercase transition-colors p-2 md:p-0">
+        <Link href="/" className="absolute top-8 left-6 text-[#a0a0a0] hover:text-[#cda1b1] text-[10px] md:text-xs font-bold tracking-widest uppercase transition-colors">
           ← Zurück zur Webseite
         </Link>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md bg-white p-10 rounded-3xl shadow-2xl">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          className="w-full max-w-md bg-white p-8 sm:p-10 rounded-3xl shadow-2xl"
+        >
           <div className="text-center mb-8">
             <h1 className="font-[family-name:var(--font-script)] text-5xl text-[#cda1b1] mb-2">MainBar</h1>
             <h2 className="text-[#a0a0a0] uppercase tracking-widest text-xs font-bold">Admin Portal</h2>
@@ -179,14 +190,32 @@ export default function AdminPortal() {
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="flex flex-col">
               <label className="text-xs uppercase tracking-widest text-[#a0a0a0] mb-2">E-Mail</label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d]" />
+              <input 
+                type="email" 
+                required 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-base" 
+                autoComplete="email"
+              />
             </div>
             <div className="flex flex-col">
               <label className="text-xs uppercase tracking-widest text-[#a0a0a0] mb-2">Passwort</label>
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d]" />
+              <input 
+                type="password" 
+                required 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-base" 
+                autoComplete="current-password"
+              />
             </div>
             {error && <p className="text-red-500 text-xs font-medium text-center">{error}</p>}
-            <button type="submit" disabled={isLoggingIn} className="w-full mt-4 bg-[#cda1b1] hover:bg-[#ebd2db] text-[#353941] py-4 rounded-full font-semibold uppercase tracking-widest text-xs transition-colors">
+            <button 
+              type="submit" 
+              disabled={isLoggingIn} 
+              className="w-full mt-4 bg-[#cda1b1] hover:bg-[#ebd2db] text-[#353941] py-4 rounded-full font-semibold uppercase tracking-widest text-xs transition-colors active:scale-[0.98]"
+            >
               {isLoggingIn ? "Wird geladen..." : "Einloggen"}
             </button>
           </form>
@@ -197,10 +226,113 @@ export default function AdminPortal() {
 
   // ================= AUTHENTICATED VIEW (DASHBOARD) =================
   return (
-    <div className="min-h-screen bg-[#faf8f5] flex">
+    <div className="min-h-screen bg-[#faf8f5] flex flex-col md:flex-row">
       
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-100 hidden md:flex flex-col">
+      {/* ========== MOBILE TOP BAR ========== */}
+      <header className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2 -ml-2 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            aria-label="Menü öffnen"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#2d2d2d]">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <h1 className="font-[family-name:var(--font-script)] text-2xl text-[#cda1b1] leading-none">MainBar</h1>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="text-[11px] font-bold uppercase tracking-widest text-red-400 px-3 py-1.5 rounded-full hover:bg-red-50 active:bg-red-100 transition-colors"
+        >
+          Ausloggen
+        </button>
+      </header>
+
+      {/* ========== MOBILE DRAWER ========== */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm md:hidden"
+            />
+            
+            {/* Drawer */}
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              className="fixed top-0 left-0 bottom-0 z-50 w-[280px] max-w-[85vw] bg-white shadow-2xl flex flex-col md:hidden"
+            >
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h1 className="font-[family-name:var(--font-script)] text-3xl text-[#cda1b1]">MainBar</h1>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 -mr-2 rounded-xl hover:bg-gray-50 text-gray-400"
+                  aria-label="Menü schließen"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
+                <button 
+                  onClick={() => setActiveTab("bookings")}
+                  className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-colors ${activeTab === "bookings" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d]"}`}
+                >
+                  📅 Event Anfragen ({activeBookings.length})
+                </button>
+                <button 
+                  onClick={() => setActiveTab("old_bookings")}
+                  className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-colors ${activeTab === "old_bookings" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d]"}`}
+                >
+                  📁 Vergangene Events ({oldBookings.length})
+                </button>
+                <button 
+                  onClick={() => setActiveTab("menu")}
+                  className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-colors ${activeTab === "menu" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d]"}`}
+                >
+                  🍽️ Menü Manager
+                </button>
+              </nav>
+
+              <div className="p-4 border-t border-gray-100 space-y-1">
+                <p className="px-4 py-2 text-[11px] text-[#a0a0a0] truncate">
+                  {user.email}
+                </p>
+                <Link 
+                  href="/" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block w-full text-left px-4 py-3.5 text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d] rounded-xl text-sm font-bold tracking-wide transition-colors"
+                >
+                  🌐 Zur Webseite
+                </Link>
+                <button 
+                  onClick={handleLogout} 
+                  className="w-full text-left px-4 py-3.5 text-red-400 hover:bg-red-50 rounded-xl text-sm font-bold tracking-wide transition-colors"
+                >
+                  Ausloggen
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ========== DESKTOP SIDEBAR ========== */}
+      <aside className="w-64 bg-white border-r border-gray-100 hidden md:flex flex-col shrink-0">
         <div className="p-8 border-b border-gray-100">
           <h1 className="font-[family-name:var(--font-script)] text-3xl text-[#cda1b1]">MainBar</h1>
         </div>
@@ -236,60 +368,64 @@ export default function AdminPortal() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-grow p-8 md:p-12 overflow-y-auto max-h-screen relative">
-        <header className="flex justify-between items-center mb-10">
-          <h2 className="font-serif text-3xl text-[#2d2d2d]">
+      {/* ========== MAIN CONTENT ========== */}
+      <main className="flex-grow p-4 sm:p-6 md:p-8 lg:p-12 overflow-y-auto max-h-[calc(100vh-57px)] md:max-h-screen relative">
+        <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6 sm:mb-10">
+          <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2d2d]">
             {activeTab === "bookings" && "Aktuelle Event Anfragen"}
             {activeTab === "old_bookings" && "Vergangene Events"}
             {activeTab === "menu" && "Menü Manager"}
           </h2>
-          <span className="text-xs font-medium text-[#a0a0a0] bg-white px-4 py-2 rounded-full shadow-sm hidden md:inline-block">
+          <span className="text-[11px] sm:text-xs font-medium text-[#a0a0a0] bg-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-sm self-start sm:self-auto hidden md:inline-block">
             Eingeloggt als: {user.email}
           </span>
         </header>
 
         {/* --- VIEW: ACTIVE BOOKINGS --- */}
         {activeTab === "bookings" && (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {activeBookings.length === 0 ? (
-              <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center py-20">
-                <p className="text-[#a0a0a0]">Keine aktuellen Event-Anfragen vorhanden.</p>
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 text-center py-16 sm:py-20">
+                <p className="text-[#a0a0a0] text-sm">Keine aktuellen Event-Anfragen vorhanden.</p>
               </div>
             ) : (
               activeBookings.map((booking) => {
                 const currentStatus = booking.status || "Neu";
                 return (
-                  <div key={booking.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <select
-                          value={currentStatus}
-                          onChange={(e) => handleStatusChange(booking.id, e.target.value)}
-                          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer border-0 outline-none ${
-                            currentStatus === "Bestätigt" ? "bg-green-100 text-green-700" :
-                            currentStatus === "Storniert" ? "bg-red-100 text-red-700" :
-                            "bg-amber-100 text-amber-700"
-                          }`}
-                        >
-                          <option value="Neu">Neu / Warteliste</option>
-                          <option value="Bestätigt">Bestätigt</option>
-                          <option value="Storniert">Storniert</option>
-                        </select>
+                  <div 
+                    key={booking.id} 
+                    className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 flex flex-col gap-4"
+                  >
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                      <select
+                        value={currentStatus}
+                        onChange={(e) => handleStatusChange(booking.id, e.target.value)}
+                        className={`px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider cursor-pointer border-0 outline-none ${
+                          currentStatus === "Bestätigt" ? "bg-green-100 text-green-700" :
+                          currentStatus === "Storniert" ? "bg-red-100 text-red-700" :
+                          "bg-amber-100 text-amber-700"
+                        }`}
+                      >
+                        <option value="Neu">Neu / Warteliste</option>
+                        <option value="Bestätigt">Bestätigt</option>
+                        <option value="Storniert">Storniert</option>
+                      </select>
 
-                        <span className="text-sm font-bold text-[#cda1b1]">
-                          📅 {booking.date ? new Date(booking.date).toLocaleDateString('de-DE') : "Kein Datum"}
-                        </span>
-                      </div>
-                      <p className="text-[#2d2d2d] font-bold text-lg mb-1">{booking.email}</p>
-                      <p className="text-[#a0a0a0] text-sm flex gap-4">
+                      <span className="text-xs sm:text-sm font-bold text-[#cda1b1]">
+                        📅 {booking.date ? new Date(booking.date).toLocaleDateString('de-DE') : "Kein Datum"}
+                      </span>
+                    </div>
+
+                    <div>
+                      <p className="text-[#2d2d2d] font-bold text-base sm:text-lg mb-1 break-all">{booking.email}</p>
+                      <div className="text-[#a0a0a0] text-xs sm:text-sm flex flex-col sm:flex-row sm:gap-4 gap-1">
                         <span>📞 {booking.phone}</span>
                         <span>📍 {booking.city}, {booking.state}</span>
-                      </p>
+                      </div>
                     </div>
                     
-                    <div className="bg-[#faf8f5] px-6 py-4 rounded-xl text-right w-full md:w-auto">
-                      <p className="text-xs uppercase tracking-widest text-[#a0a0a0] mb-1">Details</p>
+                    <div className="bg-[#faf8f5] px-4 sm:px-6 py-3 sm:py-4 rounded-xl">
+                      <p className="text-[10px] sm:text-xs uppercase tracking-widest text-[#a0a0a0] mb-1">Details</p>
                       <p className="text-[#2d2d2d] font-medium text-sm">
                         {booking.guests} Personen • {booking.seating === "inside" ? "Im Café" : booking.seating === "outside" ? "Außenbereich" : "Catering"}
                       </p>
@@ -303,39 +439,43 @@ export default function AdminPortal() {
 
         {/* --- VIEW: OLD/PAST BOOKINGS --- */}
         {activeTab === "old_bookings" && (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {oldBookings.length === 0 ? (
-              <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center py-20">
-                <p className="text-[#a0a0a0]">Keine vergangenen Events vorhanden.</p>
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 text-center py-16 sm:py-20">
+                <p className="text-[#a0a0a0] text-sm">Keine vergangenen Events vorhanden.</p>
               </div>
             ) : (
               oldBookings.map((booking) => {
                 const currentStatus = booking.status || "Neu";
                 return (
-                  <div key={booking.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 opacity-80 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                          currentStatus === "Bestätigt" ? "bg-green-100 text-green-700" :
-                          currentStatus === "Storniert" ? "bg-red-100 text-red-700" :
-                          "bg-gray-100 text-gray-700"
-                        }`}>
-                          {currentStatus}
-                        </span>
+                  <div 
+                    key={booking.id} 
+                    className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 opacity-80 flex flex-col gap-4"
+                  >
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                      <span className={`px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider ${
+                        currentStatus === "Bestätigt" ? "bg-green-100 text-green-700" :
+                        currentStatus === "Storniert" ? "bg-red-100 text-red-700" :
+                        "bg-gray-100 text-gray-700"
+                      }`}>
+                        {currentStatus}
+                      </span>
 
-                        <span className="text-sm font-medium text-gray-500">
-                          📅 {booking.date ? new Date(booking.date).toLocaleDateString('de-DE') : "Kein Datum"} (Vergangen)
-                        </span>
-                      </div>
-                      <p className="text-[#2d2d2d] font-bold text-lg mb-1">{booking.email}</p>
-                      <p className="text-[#a0a0a0] text-sm flex gap-4">
+                      <span className="text-xs sm:text-sm font-medium text-gray-500">
+                        📅 {booking.date ? new Date(booking.date).toLocaleDateString('de-DE') : "Kein Datum"} (Vergangen)
+                      </span>
+                    </div>
+
+                    <div>
+                      <p className="text-[#2d2d2d] font-bold text-base sm:text-lg mb-1 break-all">{booking.email}</p>
+                      <div className="text-[#a0a0a0] text-xs sm:text-sm flex flex-col sm:flex-row sm:gap-4 gap-1">
                         <span>📞 {booking.phone}</span>
                         <span>📍 {booking.city}, {booking.state}</span>
-                      </p>
+                      </div>
                     </div>
                     
-                    <div className="bg-[#faf8f5] px-6 py-4 rounded-xl text-right w-full md:w-auto">
-                      <p className="text-xs uppercase tracking-widest text-[#a0a0a0] mb-1">Details</p>
+                    <div className="bg-[#faf8f5] px-4 sm:px-6 py-3 sm:py-4 rounded-xl">
+                      <p className="text-[10px] sm:text-xs uppercase tracking-widest text-[#a0a0a0] mb-1">Details</p>
                       <p className="text-[#2d2d2d] font-medium text-sm">
                         {booking.guests} Personen • {booking.seating === "inside" ? "Im Café" : booking.seating === "outside" ? "Außenbereich" : "Catering"}
                       </p>
@@ -350,32 +490,33 @@ export default function AdminPortal() {
         {/* --- VIEW: MENU MANAGER --- */}
         {activeTab === "menu" && (
           <div>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5 sm:mb-6">
               <p className="text-[#a0a0a0] text-sm">Verwalten Sie Ihre Speisekarte in Echtzeit.</p>
               
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => setIsMenuModalOpen(true)}
-                  className="bg-[#cda1b1] text-[#353941] px-6 py-2.5 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-[#ebd2db] transition-colors shadow-sm"
-                >
-                  + Neues Gericht
-                </button>
-              </div>
+              <button 
+                onClick={() => setIsMenuModalOpen(true)}
+                className="bg-[#cda1b1] text-[#353941] px-5 sm:px-6 py-2.5 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-[#ebd2db] transition-colors shadow-sm active:scale-[0.98] self-start sm:self-auto"
+              >
+                + Neues Gericht
+              </button>
             </div>
 
             {menuItems.length === 0 ? (
-              <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center py-20">
-                <p className="text-[#a0a0a0] mb-4">Ihre Datenbank ist momentan leer.</p>
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 text-center py-16 sm:py-20">
+                <p className="text-[#a0a0a0] mb-4 text-sm">Ihre Datenbank ist momentan leer.</p>
                 <button onClick={() => setIsMenuModalOpen(true)} className="text-[#cda1b1] font-bold text-sm underline hover:text-[#353941]">
                   Erstes Gericht hinzufügen
                 </button>
               </div>
             ) : (
-              <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 space-y-4">
-                {menuItems.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center border-b border-gray-50 pb-4 last:border-0 last:pb-0 group">
-                    <div className="pr-4">
-                      <div className="flex items-center gap-2 mb-1">
+              <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-0">
+                {menuItems.map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className={`flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 py-4 ${index !== menuItems.length - 1 ? "border-b border-gray-50" : ""}`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-[#a0a0a0] bg-gray-100 px-2 py-0.5 rounded-md">
                           {item.category}
                         </span>
@@ -384,16 +525,26 @@ export default function AdminPortal() {
                             Extra
                           </span>
                         )}
-                        <h4 className="font-serif text-lg text-[#2d2d2d]">{item.name}</h4>
                       </div>
-                      <p className="text-xs text-[#a0a0a0] line-clamp-1">{item.description || "Keine Beschreibung"}</p>
+                      <h4 className="font-serif text-base sm:text-lg text-[#2d2d2d]">{item.name}</h4>
+                      <p className="text-xs text-[#a0a0a0] line-clamp-2 mt-0.5">{item.description || "Keine Beschreibung"}</p>
                     </div>
                     
-                    <div className="flex items-center gap-6">
-                      <span className="font-bold text-[#cda1b1] whitespace-nowrap">€ {item.price}</span>
-                      <div className="flex items-center gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleEditClick(item)} className="text-gray-400 hover:text-blue-500 text-sm font-medium">Bearbeiten</button>
-                        <button onClick={() => handleDeleteClick(item.id)} className="text-gray-400 hover:text-red-500 text-sm font-medium">Löschen</button>
+                    <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 shrink-0">
+                      <span className="font-bold text-[#cda1b1] whitespace-nowrap text-sm sm:text-base">€ {item.price}</span>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => handleEditClick(item)} 
+                          className="text-blue-500 text-xs sm:text-sm font-medium px-2 py-1 rounded-lg hover:bg-blue-50 active:bg-blue-100"
+                        >
+                          Bearbeiten
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteClick(item.id)} 
+                          className="text-red-500 text-xs sm:text-sm font-medium px-2 py-1 rounded-lg hover:bg-red-50 active:bg-red-100"
+                        >
+                          Löschen
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -406,19 +557,23 @@ export default function AdminPortal() {
         {/* --- MODAL: ADD/EDIT MENU ITEM --- */}
         <AnimatePresence>
           {isMenuModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto"
+                initial={{ opacity: 0, y: 40 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, y: 40 }}
+                transition={{ type: "spring", stiffness: 320, damping: 32 }}
+                className="bg-white rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 w-full sm:max-w-lg shadow-2xl relative max-h-[92vh] overflow-y-auto"
               >
                 <button 
                   onClick={resetMenuForm}
-                  className="absolute top-6 right-6 text-gray-400 hover:text-[#2d2d2d] font-bold text-xl leading-none"
+                  className="absolute top-5 right-5 text-gray-400 hover:text-[#2d2d2d] font-bold text-2xl leading-none w-8 h-8 flex items-center justify-center"
+                  aria-label="Schließen"
                 >
                   ×
                 </button>
                 
-                <h3 className="font-serif text-2xl text-[#2d2d2d] mb-6">
+                <h3 className="font-serif text-xl sm:text-2xl text-[#2d2d2d] mb-6 pr-8">
                   {editingId ? "Gericht bearbeiten" : "Neues Gericht hinzufügen"}
                 </h3>
 
@@ -426,8 +581,10 @@ export default function AdminPortal() {
                   <div className="flex flex-col">
                     <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] mb-1">Kategorie</label>
                     <select 
-                      required value={menuForm.category} onChange={(e) => setMenuForm({...menuForm, category: e.target.value})}
-                      className="border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] bg-transparent cursor-pointer text-sm"
+                      required 
+                      value={menuForm.category} 
+                      onChange={(e) => setMenuForm({...menuForm, category: e.target.value})}
+                      className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] bg-transparent cursor-pointer text-sm"
                     >
                       {menuCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     </select>
@@ -435,34 +592,56 @@ export default function AdminPortal() {
 
                   <div className="flex flex-col">
                     <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] mb-1">Name des Gerichts</label>
-                    <input type="text" required value={menuForm.name} onChange={(e) => setMenuForm({...menuForm, name: e.target.value})} className="border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-sm" placeholder="z.B. Avocado Sandwich" />
+                    <input 
+                      type="text" 
+                      required 
+                      value={menuForm.name} 
+                      onChange={(e) => setMenuForm({...menuForm, name: e.target.value})} 
+                      className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-sm" 
+                      placeholder="z.B. Avocado Sandwich" 
+                    />
                   </div>
 
                   <div className="flex flex-col">
                     <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] mb-1">Preis (€)</label>
-                    <input type="text" required value={menuForm.price} onChange={(e) => setMenuForm({...menuForm, price: e.target.value})} className="border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-sm" placeholder="z.B. 14.90" />
+                    <input 
+                      type="text" 
+                      required 
+                      value={menuForm.price} 
+                      onChange={(e) => setMenuForm({...menuForm, price: e.target.value})} 
+                      className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-sm" 
+                      placeholder="z.B. 14.90" 
+                    />
                   </div>
 
                   <div className="flex flex-col">
                     <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] mb-1">Beschreibung (Optional)</label>
-                    <textarea rows={2} value={menuForm.description} onChange={(e) => setMenuForm({...menuForm, description: e.target.value})} className="border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-sm resize-none" placeholder="Zutaten, Besonderheiten..." />
+                    <textarea 
+                      rows={2} 
+                      value={menuForm.description} 
+                      onChange={(e) => setMenuForm({...menuForm, description: e.target.value})} 
+                      className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-sm resize-none" 
+                      placeholder="Zutaten, Besonderheiten..." 
+                    />
                   </div>
 
-                  {/* CHECKBOX TO MARK ITEM AS "EXTRA" */}
-                  <div className="flex items-center gap-3 pt-2 pb-2">
+                  <div className="flex items-center gap-3 pt-1 pb-1">
                     <input 
                       type="checkbox" 
                       id="isExtra"
                       checked={menuForm.isExtra} 
                       onChange={(e) => setMenuForm({...menuForm, isExtra: e.target.checked})} 
-                      className="w-4 h-4 text-[#cda1b1] border-gray-300 rounded focus:ring-[#cda1b1] cursor-pointer" 
+                      className="w-5 h-5 text-[#cda1b1] border-gray-300 rounded focus:ring-[#cda1b1] cursor-pointer accent-[#cda1b1]" 
                     />
                     <label htmlFor="isExtra" className="text-xs font-bold uppercase tracking-widest text-[#2d2d2d] cursor-pointer">
                       Als Extra markieren (Kasten-Design)
                     </label>
                   </div>
 
-                  <button type="submit" className="w-full mt-4 bg-[#cda1b1] hover:bg-[#ebd2db] text-[#353941] py-4 rounded-full font-bold uppercase tracking-widest text-xs transition-colors">
+                  <button 
+                    type="submit" 
+                    className="w-full mt-2 bg-[#cda1b1] hover:bg-[#ebd2db] text-[#353941] py-4 rounded-full font-bold uppercase tracking-widest text-xs transition-colors active:scale-[0.98]"
+                  >
                     {editingId ? "Änderungen Speichern" : "Hinzufügen"}
                   </button>
                 </form>
