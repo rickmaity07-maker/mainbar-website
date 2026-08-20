@@ -281,7 +281,7 @@ export default function UnifiedHomePage() {
         <div className="relative z-20 w-full h-full flex">
           
           {/* LEFT – Branding */}
-          <div className="w-full lg:w-1/2 h-full flex flex-col items-center justify-center text-center px-8 lg:pl-12 lg:pr-6 -translate-x-2 lg:-translate-x-3">
+          <div className="w-full lg:w-1/2 h-full flex flex-col items-center justify-center text-center px-8 lg:pl-12 lg:pr-6 lg:-translate-x-3">
             <motion.div 
               initial={{ opacity: 0, y: 20 }} 
               animate={{ opacity: 1, y: 0 }} 
@@ -369,27 +369,9 @@ export default function UnifiedHomePage() {
             </motion.div>
           </div>
 
-          {/* Mobile poem */}
-          <div className="lg:hidden absolute bottom-5 left-0 right-0 px-5">
-            <div className="bg-black/25 rounded-2xl border border-white/10 p-4">
-              <p className="font-serif italic text-sm text-white text-center leading-relaxed mb-3">
-                „Bei uns ist Qualität das Produkt der Liebe zum Detail.“
-              </p>
-              <div className="w-8 h-px bg-[#cda1b1]/50 mx-auto mb-3"></div>
-              <div className="flex flex-col gap-1">
-                {acrosticPoem.map((line, index) => (
-                  <div key={index} className="flex items-center gap-2.5 justify-center">
-                    <span className="font-serif text-base font-medium text-[#cda1b1] w-4 text-right">
-                      {line.letter}
-                    </span>
-                    <span className="font-serif text-[9px] tracking-[0.12em] uppercase text-white">
-                      {line.rest}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          {/* Mobile: intentionally no poem block here — on phones, the hero
+              is just the branding (left column, already w-full below lg)
+              over the background video, full screen. */}
 
         </div>
       </section>
@@ -431,7 +413,7 @@ export default function UnifiedHomePage() {
         <div className="max-w-4xl mx-auto relative z-10">
          
           <div className="text-center mb-10 md:mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl text-[#2d2d2d] mb-4 md:mb-6">Maine Menü</h2>
+            <h2 className="font-serif text-4xl md:text-5xl text-[#2d2d2d] mb-4 md:mb-6">Unser Menü</h2>
             <div className="w-12 h-px bg-[#cda1b1] mx-auto"></div>
           </div>
 
@@ -462,7 +444,7 @@ export default function UnifiedHomePage() {
                   the box an elegant printed-menu feel without needing a photo */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none select-none absolute -bottom-10 -right-10 font-[family-name:var(--font-great-vibes)] text-[10rem] md:text-[14rem] text-[#cda1b1]/[0.09] leading-none rotate-[-6deg] z-0"
+                className="pointer-events-none select-none absolute -bottom-10 -right-10 font-[family-name:var(--font-great-vibes)] text-[10rem] md:text-[14rem] text-[#cda1b1]/[0.06] leading-none rotate-[-6deg] z-0"
               >
                 MainBar
               </div>
