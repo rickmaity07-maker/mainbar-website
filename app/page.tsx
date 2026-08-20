@@ -137,20 +137,33 @@ export default function UnifiedHomePage() {
   const [reviewForm, setReviewForm] = useState({ author: "", text: "", rating: 5 });
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Locks the hero to the ACTUAL visible screen height in pixels, rather
-  // than trusting CSS viewport units alone. iOS Safari's address bar
-  // show/hide behavior can make 100svh/100dvh round a pixel or two short
-  // of the true visible area, which lets the next section peek through at
-  // the bottom — this removes that gap entirely on any device.
+  // Locks the hero to the ACTUAL visible screen height using the visualViewport
+  // API. iOS Safari’s collapsible bottom toolbar makes window.innerHeight
+  // (and even 100dvh/100svh) report a value that is a few pixels short of the
+  // true visible area, which lets the next section show through at the bottom.
+  // visualViewport tracks the real visible area as the toolbar shows/hides.
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
   useEffect(() => {
-    const setHeight = () => setViewportHeight(window.innerHeight);
+    const vv = window.visualViewport;
+    if (!vv) {
+      // Fallback for browsers without visualViewport
+      const setHeight = () => setViewportHeight(window.innerHeight);
+      setHeight();
+      window.addEventListener("resize", setHeight);
+      window.addEventListener("orientationchange", setHeight);
+      return () => {
+        window.removeEventListener("resize", setHeight);
+        window.removeEventListener("orientationchange", setHeight);
+      };
+    }
+
+    const setHeight = () => setViewportHeight(vv.height);
     setHeight();
-    window.addEventListener("resize", setHeight);
-    window.addEventListener("orientationchange", setHeight);
+    vv.addEventListener("resize", setHeight);
+    vv.addEventListener("scroll", setHeight); // also fires when the toolbar collapses/expands
     return () => {
-      window.removeEventListener("resize", setHeight);
-      window.removeEventListener("orientationchange", setHeight);
+      vv.removeEventListener("resize", setHeight);
+      vv.removeEventListener("scroll", setHeight);
     };
   }, []);
 
