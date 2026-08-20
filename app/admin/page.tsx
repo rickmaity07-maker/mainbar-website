@@ -31,7 +31,8 @@ export default function AdminPortal() {
     name: "",
     description: "",
     price: "",
-    image_url: ""
+    image_url: "",
+    isExtra: false // Added Extra Checkbox State
   });
 
   // Login Form State
@@ -102,11 +103,10 @@ export default function AdminPortal() {
   };
 
   // --- FILTER BOOKINGS BY DATE ---
-  // Today's date string in YYYY-MM-DD format for precise comparison
   const todayStr = new Date().toISOString().split("T")[0];
 
   const activeBookings = bookings.filter(b => {
-    if (!b.date) return true; // Keep items without a date in active by default
+    if (!b.date) return true; 
     return b.date >= todayStr;
   });
 
@@ -117,7 +117,7 @@ export default function AdminPortal() {
 
   // --- MENU HANDLERS ---
   const resetMenuForm = () => {
-    setMenuForm({ category: menuCategories[0], name: "", description: "", price: "", image_url: "" });
+    setMenuForm({ category: menuCategories[0], name: "", description: "", price: "", image_url: "", isExtra: false });
     setEditingId(null);
     setIsMenuModalOpen(false);
   };
@@ -143,7 +143,8 @@ export default function AdminPortal() {
       name: item.name,
       description: item.description || "",
       price: item.price,
-      image_url: item.image_url || ""
+      image_url: item.image_url || "",
+      isExtra: item.isExtra || false
     });
     setEditingId(item.id);
     setIsMenuModalOpen(true);
@@ -168,7 +169,7 @@ export default function AdminPortal() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#353941] p-6 relative">
         <Link href="/" className="absolute top-12 md:top-8 left-6 md:left-8 text-[#a0a0a0] hover:text-[#cda1b1] text-[10px] md:text-xs font-bold tracking-widest uppercase transition-colors p-2 md:p-0">
-          &larr; Zurück zur Webseite
+          ← Zurück zur Webseite
         </Link>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md bg-white p-10 rounded-3xl shadow-2xl">
           <div className="text-center mb-8">
@@ -378,6 +379,11 @@ export default function AdminPortal() {
                         <span className="text-[10px] font-bold uppercase tracking-widest text-[#a0a0a0] bg-gray-100 px-2 py-0.5 rounded-md">
                           {item.category}
                         </span>
+                        {item.isExtra && (
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-white bg-[#cda1b1] px-2 py-0.5 rounded-md">
+                            Extra
+                          </span>
+                        )}
                         <h4 className="font-serif text-lg text-[#2d2d2d]">{item.name}</h4>
                       </div>
                       <p className="text-xs text-[#a0a0a0] line-clamp-1">{item.description || "Keine Beschreibung"}</p>
@@ -409,7 +415,7 @@ export default function AdminPortal() {
                   onClick={resetMenuForm}
                   className="absolute top-6 right-6 text-gray-400 hover:text-[#2d2d2d] font-bold text-xl leading-none"
                 >
-                  &times;
+                  ×
                 </button>
                 
                 <h3 className="font-serif text-2xl text-[#2d2d2d] mb-6">
@@ -440,6 +446,20 @@ export default function AdminPortal() {
                   <div className="flex flex-col">
                     <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] mb-1">Beschreibung (Optional)</label>
                     <textarea rows={2} value={menuForm.description} onChange={(e) => setMenuForm({...menuForm, description: e.target.value})} className="border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-sm resize-none" placeholder="Zutaten, Besonderheiten..." />
+                  </div>
+
+                  {/* CHECKBOX TO MARK ITEM AS "EXTRA" */}
+                  <div className="flex items-center gap-3 pt-2 pb-2">
+                    <input 
+                      type="checkbox" 
+                      id="isExtra"
+                      checked={menuForm.isExtra} 
+                      onChange={(e) => setMenuForm({...menuForm, isExtra: e.target.checked})} 
+                      className="w-4 h-4 text-[#cda1b1] border-gray-300 rounded focus:ring-[#cda1b1] cursor-pointer" 
+                    />
+                    <label htmlFor="isExtra" className="text-xs font-bold uppercase tracking-widest text-[#2d2d2d] cursor-pointer">
+                      Als Extra markieren (Kasten-Design)
+                    </label>
                   </div>
 
                   <button type="submit" className="w-full mt-4 bg-[#cda1b1] hover:bg-[#ebd2db] text-[#353941] py-4 rounded-full font-bold uppercase tracking-widest text-xs transition-colors">
