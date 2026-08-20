@@ -137,6 +137,23 @@ export default function UnifiedHomePage() {
   const [reviewForm, setReviewForm] = useState({ author: "", text: "", rating: 5 });
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  // Locks the hero to the ACTUAL visible screen height in pixels, rather
+  // than trusting CSS viewport units alone. iOS Safari's address bar
+  // show/hide behavior can make 100svh/100dvh round a pixel or two short
+  // of the true visible area, which lets the next section peek through at
+  // the bottom — this removes that gap entirely on any device.
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+  useEffect(() => {
+    const setHeight = () => setViewportHeight(window.innerHeight);
+    setHeight();
+    window.addEventListener("resize", setHeight);
+    window.addEventListener("orientationchange", setHeight);
+    return () => {
+      window.removeEventListener("resize", setHeight);
+      window.removeEventListener("orientationchange", setHeight);
+    };
+  }, []);
+
   useEffect(() => {
     const qMenu = query(collection(db, "menu"));
     const unsubMenu = onSnapshot(qMenu, (snapshot) => {
@@ -265,7 +282,10 @@ export default function UnifiedHomePage() {
       </div>
 
       {/* ================= HERO SECTION ================= */}
-      <section className="relative z-0 h-svh w-full flex items-center justify-center overflow-hidden">
+      <section
+        className="relative z-0 w-full flex items-center justify-center overflow-hidden h-[100dvh]"
+        style={viewportHeight ? { height: `${viewportHeight}px` } : undefined}
+      >
        
         {/* Full-screen ambient video */}
         <div className="absolute inset-0 w-full h-full -z-30">
