@@ -137,33 +137,44 @@ export default function UnifiedHomePage() {
   const [reviewForm, setReviewForm] = useState({ author: "", text: "", rating: 5 });
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  // Locks the hero to the ACTUAL visible screen height using the visualViewport
-  // API. iOS Safari’s collapsible bottom toolbar makes window.innerHeight
-  // (and even 100dvh/100svh) report a value that is a few pixels short of the
-  // true visible area, which lets the next section show through at the bottom.
-  // visualViewport tracks the real visible area as the toolbar shows/hides.
+  // iOS Safari full-viewport lock.
+  // Writes --app-height on <html> and also keeps a React state so the hero
+  // can be forced to the exact visible pixel height. visualViewport is the
+  // only reliable source for the real visible area when the bottom toolbar
+  // collapses/expands.
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) {
-      // Fallback for browsers without visualViewport
-      const setHeight = () => setViewportHeight(window.innerHeight);
-      setHeight();
-      window.addEventListener("resize", setHeight);
-      window.addEventListener("orientationchange", setHeight);
-      return () => {
-        window.removeEventListener("resize", setHeight);
-        window.removeEventListener("orientationchange", setHeight);
-      };
-    }
 
-    const setHeight = () => setViewportHeight(vv.height);
-    setHeight();
-    vv.addEventListener("resize", setHeight);
-    vv.addEventListener("scroll", setHeight); // also fires when the toolbar collapses/expands
+  useEffect(() => {
+    const update = () => {
+      const h = window.visualViewport?.height ?? window.innerHeight;
+      setViewportHeight(h);
+      document.documentElement.style.setProperty("--app-height", `${h}px`);
+    };
+
+    update();
+
+    const vv = window.visualViewport;
+    if (vv) {
+      vv.addEventListener("resize", update);
+      vv.addEventListener("scroll", update);
+    }
+    window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
+
+    // Re-run once after a short delay – Safari sometimes reports the wrong
+    // height on the very first paint.
+    const t = setTimeout(update, 100);
+    const t2 = setTimeout(update, 500);
+
     return () => {
-      vv.removeEventListener("resize", setHeight);
-      vv.removeEventListener("scroll", setHeight);
+      clearTimeout(t);
+      clearTimeout(t2);
+      if (vv) {
+        vv.removeEventListener("resize", update);
+        vv.removeEventListener("scroll", update);
+      }
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
     };
   }, []);
 
@@ -295,9 +306,13 @@ export default function UnifiedHomePage() {
       </div>
 
       {/* ================= HERO SECTION ================= */}
+      {/* No Tailwind height class – only the pixel value from visualViewport */}
       <section
-        className="relative z-0 w-full flex items-center justify-center overflow-hidden h-[100dvh]"
-        style={viewportHeight ? { height: `${viewportHeight}px` } : undefined}
+        className="relative z-0 w-full flex items-center justify-center overflow-hidden"
+        style={{
+          height: viewportHeight ? `${viewportHeight}px` : "100dvh",
+          minHeight: viewportHeight ? `${viewportHeight}px` : "100dvh",
+        }}
       >
        
         {/* Full-screen ambient video */}
