@@ -589,11 +589,11 @@ export default function UnifiedHomePage() {
               <h1 className="font-(family-name:--font-great-vibes) text-8xl md:text-9xl lg:text-[9.5rem] text-[#cda1b1] relative z-10 leading-none drop-shadow-2xl">
                 MainBar
               </h1>
-            </motion.div>
 
-            <div className="text-sm md:text-base tracking-[0.4em] text-white uppercase mt-5 z-10 drop-shadow-md">
-              Drinks & Food
-            </div>
+              <div className="text-sm md:text-base tracking-[0.4em] text-white uppercase mt-2 z-10 drop-shadow-md">
+                Drinks & Food
+              </div>
+            </motion.div>
 
             <motion.h2
               initial={{ opacity: 0 }}
@@ -781,7 +781,7 @@ export default function UnifiedHomePage() {
         {/* ============================================================
             LEFT MARGIN BACKGROUND IMAGE
             Very subtle and faded so it flows naturally with the page.
-        ============================================================ */}
+        ================================================================ */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute left-0 top-0 bottom-0 w-[25vw] max-w-[420px] hidden xl:block z-0"
@@ -805,7 +805,7 @@ export default function UnifiedHomePage() {
 
         {/* ============================================================
             RIGHT MARGIN BACKGROUND IMAGE
-        ============================================================ */}
+        ================================================================ */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute right-0 top-0 bottom-0 w-[25vw] max-w-[420px] hidden xl:block z-0"
@@ -829,7 +829,7 @@ export default function UnifiedHomePage() {
 
         {/* ============================================================
             SUBTLE DECORATIVE SIDE LINES
-        ============================================================ */}
+        ================================================================ */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute left-[7vw] top-[22%] hidden xl:block w-20 h-px bg-[#cda1b1]/20 rotate-90 z-0"
@@ -842,7 +842,7 @@ export default function UnifiedHomePage() {
 
         {/* ============================================================
             EXISTING MENU CONTENT
-        ============================================================ */}
+        ================================================================ */}
         <div className="max-w-4xl mx-auto relative z-10">
 
           <div className="text-center mb-10 md:mb-16">
