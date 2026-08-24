@@ -781,25 +781,23 @@ export default function UnifiedHomePage() {
 
         {/* ============================================================
             MOBILE / TABLET BACKGROUND IMAGE (Visible below xl)
-            Fills the background behind the container elegantly.
+            Fixed opacity and removed heavy white layers so it's visible
         ================================================================ */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 xl:hidden z-0"
         >
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-[0.12]"
+            className="absolute inset-0 bg-cover bg-center opacity-[0.35]"
             style={{
-              backgroundImage: "url('/media/breakfast.jpg')",
-              filter: "blur(0.3px)"
+              backgroundImage: `url(${currentMenuImage || '/media/breakfast.jpg'})`,
+              filter: "blur(2px)",
+              transition: "background-image 0.7s ease-in-out"
             }}
           />
           
-          {/* Soft overall white overlay for readability */}
-          <div className="absolute inset-0 bg-white/40" />
-          
-          {/* Fade edges gently into white so it doesn't have hard cuts */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white opacity-90" />
+          {/* Fade edges gently into white so it blends with sections above and below */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white via-white/10 to-white" />
         </div>
 
         {/* ============================================================
@@ -811,15 +809,16 @@ export default function UnifiedHomePage() {
         >
 
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-[0.14]"
+            className="absolute inset-0 bg-cover bg-center opacity-[0.30]"
             style={{
-              backgroundImage: "url('/media/breakfast.jpg')",
-              filter: "blur(0.3px)"
+              backgroundImage: `url(${currentMenuImage || '/media/breakfast.jpg'})`,
+              filter: "blur(2px)",
+              transition: "background-image 0.7s ease-in-out"
             }}
           />
 
-          {/* Fade image into white */}
-          <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-white" />
+          {/* Fade image into white towards the center */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-white" />
 
           {/* Soft overall white overlay */}
           <div className="absolute inset-0 bg-white/20" />
@@ -835,15 +834,16 @@ export default function UnifiedHomePage() {
         >
 
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-[0.14]"
+            className="absolute inset-0 bg-cover bg-center opacity-[0.30]"
             style={{
-              backgroundImage: "url('/media/breakfast.jpg')",
-              filter: "blur(0.3px)"
+              backgroundImage: `url(${currentMenuImage || '/media/breakfast.jpg'})`,
+              filter: "blur(2px)",
+              transition: "background-image 0.7s ease-in-out"
             }}
           />
 
-          {/* Fade image into white */}
-          <div className="absolute inset-0 bg-linear-to-l from-transparent via-white/20 to-white" />
+          {/* Fade image into white towards the center */}
+          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-white" />
 
           {/* Soft overall white overlay */}
           <div className="absolute inset-0 bg-white/20" />
