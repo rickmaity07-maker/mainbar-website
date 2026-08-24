@@ -780,7 +780,30 @@ export default function UnifiedHomePage() {
       >
 
         {/* ============================================================
-            LEFT MARGIN BACKGROUND IMAGE
+            MOBILE / TABLET BACKGROUND IMAGE (Visible below xl)
+            Fills the background behind the container elegantly.
+        ================================================================ */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 xl:hidden z-0"
+        >
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-[0.12]"
+            style={{
+              backgroundImage: "url('/media/breakfast.jpg')",
+              filter: "blur(0.3px)"
+            }}
+          />
+          
+          {/* Soft overall white overlay for readability */}
+          <div className="absolute inset-0 bg-white/40" />
+          
+          {/* Fade edges gently into white so it doesn't have hard cuts */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white opacity-90" />
+        </div>
+
+        {/* ============================================================
+            LEFT MARGIN BACKGROUND IMAGE (Desktop)
         ================================================================ */}
         <div
           aria-hidden="true"
@@ -804,7 +827,7 @@ export default function UnifiedHomePage() {
         </div>
 
         {/* ============================================================
-            RIGHT MARGIN BACKGROUND IMAGE
+            RIGHT MARGIN BACKGROUND IMAGE (Desktop)
         ================================================================ */}
         <div
           aria-hidden="true"
