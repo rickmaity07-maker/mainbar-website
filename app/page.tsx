@@ -652,16 +652,15 @@ export default function UnifiedHomePage() {
 
       {/* ================================================================
           ELEGANT MENU SECTION
+          Fixed: Removed 'overflow-hidden' from section so sticky works!
       ================================================================ */}
 
       <section
         id="menu-section"
-        className="min-h-screen bg-white px-4 md:px-6 py-16 md:py-24 relative overflow-hidden"
+        className="min-h-screen bg-white px-4 md:px-6 py-16 md:py-24 relative overflow-x-clip"
       >
         {/* ============================================================
             MOBILE / TABLET BACKGROUND IMAGE (Visible below xl)
-            Wrapped in a sticky container so it stays perfectly sized
-            and frames the food properly without stretching to infinity!
         ================================================================ */}
         <div
           aria-hidden="true"
@@ -676,7 +675,6 @@ export default function UnifiedHomePage() {
                 transition: "background-image 0.7s ease-in-out"
               }}
             />
-            {/* Fade edges gently into white so it blends with sections above and below */}
             <div className="absolute inset-0 bg-gradient-to-b from-white via-white/10 to-white" />
           </div>
         </div>
@@ -697,9 +695,7 @@ export default function UnifiedHomePage() {
                 transition: "background-image 0.7s ease-in-out"
               }}
             />
-            {/* Fade image into white towards the center */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-white" />
-            {/* Soft overall white overlay */}
             <div className="absolute inset-0 bg-white/20" />
           </div>
         </div>
@@ -720,9 +716,7 @@ export default function UnifiedHomePage() {
                 transition: "background-image 0.7s ease-in-out"
               }}
             />
-            {/* Fade image into white towards the center */}
             <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-white" />
-            {/* Soft overall white overlay */}
             <div className="absolute inset-0 bg-white/20" />
           </div>
         </div>
