@@ -202,10 +202,6 @@ export default function UnifiedHomePage() {
   const sliderRef = useRef<HTMLDivElement>(null);
 
   // iOS Safari full-viewport lock.
-  // Writes --app-height on <html> and also keeps a React state so the hero
-  // can be forced to the exact visible pixel height. visualViewport is the
-  // only reliable source for the real visible area when the bottom toolbar
-  // collapses/expands.
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
 
   useEffect(() => {
@@ -232,8 +228,6 @@ export default function UnifiedHomePage() {
     window.addEventListener("resize", update);
     window.addEventListener("orientationchange", update);
 
-    // Re-run once after a short delay – Safari sometimes reports the wrong
-    // height on the very first paint.
     const t = setTimeout(update, 100);
     const t2 = setTimeout(update, 500);
 
@@ -322,7 +316,7 @@ export default function UnifiedHomePage() {
   const isExtraItem = (val: any) =>
     val === true || String(val).toLowerCase() === "true";
 
-  // Regular dishes for the active tab, sorted high -> low by price.
+  // Regular dishes for the active tab
   const mainItems = firestoreMenuData
     .filter(
       (item: any) =>
@@ -334,8 +328,7 @@ export default function UnifiedHomePage() {
         parsePrice(b.price) - parsePrice(a.price)
     );
 
-  // Items flagged as "extra" (Butter, Ei, Brötchen add-ons, etc.) shown in
-  // their own boxed section, matching the physical menu's layout.
+  // Items flagged as "extra"
   const activeExtras = firestoreMenuData
     .filter(
       (item: any) =>
@@ -369,7 +362,6 @@ export default function UnifiedHomePage() {
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setIsSubmitting(true);
 
     try {
@@ -390,14 +382,8 @@ export default function UnifiedHomePage() {
 
       alert("Vielen Dank für deine Bewertung!");
     } catch (error) {
-      console.error(
-        "Fehler beim Speichern der Bewertung:",
-        error
-      );
-
-      alert(
-        "Es gab ein Problem. Bitte versuche es später nochmal."
-      );
+      console.error("Fehler beim Speichern der Bewertung:", error);
+      alert("Es gab ein Problem. Bitte versuche es später nochmal.");
     } finally {
       setIsSubmitting(false);
     }
@@ -419,7 +405,6 @@ export default function UnifiedHomePage() {
           <span className="text-[#cda1b1] group-hover:text-[#1c1a1d] text-lg leading-none transition-colors">
             ★
           </span>
-
           <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase mt-0.5">
             Bewerte uns
           </span>
@@ -428,21 +413,9 @@ export default function UnifiedHomePage() {
         <AnimatePresence>
           {isReviewFormOpen && (
             <motion.div
-              initial={{
-                opacity: 0,
-                scale: 0.95,
-                y: -10
-              }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                y: 0
-              }}
-              exit={{
-                opacity: 0,
-                scale: 0.95,
-                y: -10
-              }}
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
               transition={{ duration: 0.2 }}
               className="absolute top-full left-0 mt-4 w-[calc(100vw-3rem)] max-w-85 bg-white rounded-3xl p-6 shadow-2xl border border-gray-100 origin-top-left"
             >
@@ -450,31 +423,22 @@ export default function UnifiedHomePage() {
                 <h3 className="font-serif text-xl text-[#2d2d2d]">
                   Wie war dein Besuch?
                 </h3>
-
                 <button
-                  onClick={() =>
-                    setIsReviewFormOpen(false)
-                  }
+                  onClick={() => setIsReviewFormOpen(false)}
                   className="text-gray-400 hover:text-red-500 text-xl font-bold"
                 >
                   ×
                 </button>
               </div>
 
-              <form
-                onSubmit={handleReviewSubmit}
-                className="space-y-4"
-              >
+              <form onSubmit={handleReviewSubmit} className="space-y-4">
                 <div className="flex justify-center gap-2 mb-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
                       type="button"
                       onClick={() =>
-                        setReviewForm({
-                          ...reviewForm,
-                          rating: star
-                        })
+                        setReviewForm({ ...reviewForm, rating: star })
                       }
                       className={`text-3xl outline-none transition-colors ${
                         reviewForm.rating >= star
@@ -493,10 +457,7 @@ export default function UnifiedHomePage() {
                     required
                     value={reviewForm.author}
                     onChange={(e) =>
-                      setReviewForm({
-                        ...reviewForm,
-                        author: e.target.value
-                      })
+                      setReviewForm({ ...reviewForm, author: e.target.value })
                     }
                     className="border-b border-gray-200 py-1.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-xs"
                     placeholder="Dein Vorname"
@@ -509,10 +470,7 @@ export default function UnifiedHomePage() {
                     required
                     value={reviewForm.text}
                     onChange={(e) =>
-                      setReviewForm({
-                        ...reviewForm,
-                        text: e.target.value
-                      })
+                      setReviewForm({ ...reviewForm, text: e.target.value })
                     }
                     className="border-b border-gray-200 py-1.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-xs resize-none"
                     placeholder="Deine Bewertung"
@@ -524,9 +482,7 @@ export default function UnifiedHomePage() {
                   disabled={isSubmitting}
                   className="w-full mt-2 bg-[#cda1b1] hover:bg-[#ebd2db] text-[#353941] py-3 rounded-full font-bold uppercase tracking-widest text-[10px] transition-colors disabled:opacity-50"
                 >
-                  {isSubmitting
-                    ? "Wird gesendet..."
-                    : "Absenden"}
+                  {isSubmitting ? "Wird gesendet..." : "Absenden"}
                 </button>
               </form>
             </motion.div>
@@ -541,49 +497,29 @@ export default function UnifiedHomePage() {
       <section
         className="relative z-0 w-full flex items-center justify-center overflow-hidden"
         style={{
-          height: viewportHeight
-            ? `${viewportHeight}px`
-            : "100dvh",
-          minHeight: viewportHeight
-            ? `${viewportHeight}px`
-            : "100dvh"
+          height: viewportHeight ? `${viewportHeight}px` : "100dvh",
+          minHeight: viewportHeight ? `${viewportHeight}px` : "100dvh"
         }}
       >
-        {/* Full-screen ambient video */}
         <div className="absolute inset-0 w-full h-full -z-30">
           <BackgroundVideo
             src="/media/mainbar-hero.mp4"
             fallbackGif="/media/mainbar-hero.gif"
             className="w-full h-full object-cover"
           />
-
           <div className="absolute inset-0 bg-[#121111]/45 z-10" />
         </div>
 
-        {/* Content */}
         <div className="relative z-20 w-full h-full flex">
-
           {/* LEFT – Branding */}
           <div className="w-full lg:w-1/2 h-full flex flex-col items-center justify-center text-center px-8">
-
             <motion.div
-              initial={{
-                opacity: 0,
-                y: 20
-              }}
-              animate={{
-                opacity: 1,
-                y: 0
-              }}
-              transition={{
-                duration: 0.8
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
               className="flex flex-col items-center -translate-y-1.75"
             >
-              {/* This wrapper locks the circles tightly to the logo text size */}
               <div className="relative inline-flex flex-col items-center justify-center">
-                
-                {/* Decorative circles - EXACTLY as they were originally */}
                 <div className="absolute w-44 h-44 md:w-52 md:h-52 border-2 border-[#cda1b1]/55 rounded-full -top-7 left-1/2 translate-x-[-58%] z-0 pointer-events-none"></div>
                 <div className="absolute w-44 h-44 md:w-52 md:h-52 border-2 border-[#cda1b1]/55 rounded-full -top-5 left-1/2 translate-x-[-38%] z-0 pointer-events-none"></div>
                 
@@ -607,26 +543,13 @@ export default function UnifiedHomePage() {
             </motion.h2>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 w-full">
-
               <motion.button
                 onClick={scrollToMenu}
-                initial={{
-                  opacity: 0,
-                  y: 10
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0
-                }}
-                transition={{
-                  delay: 0.5
-                }}
-                whileHover={{
-                  scale: 1.05
-                }}
-                whileTap={{
-                  scale: 0.97
-                }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
                 className="bg-[#cda1b1] text-[#1c1a1d] px-12 py-4 rounded-full font-bold uppercase tracking-[0.2em] text-sm hover:bg-white transition-all duration-400 shadow-lg"
               >
                 Zur Speisekarte
@@ -638,66 +561,43 @@ export default function UnifiedHomePage() {
               >
                 Event & Catering Buchen
               </Link>
-
             </div>
           </div>
 
-          {/* Elegant vertical divider */}
           <div className="hidden lg:flex items-center justify-center w-px relative">
             <div className="h-40 w-px bg-linear-to-b from-transparent via-[#cda1b1]/60 to-transparent"></div>
           </div>
 
           {/* RIGHT – Poem */}
           <div className="hidden lg:flex w-1/2 h-full items-center justify-center relative">
-
             <motion.div
-              initial={{
-                opacity: 0,
-                y: 20
-              }}
-              animate={{
-                opacity: 1,
-                y: 0
-              }}
-              transition={{
-                duration: 0.9,
-                delay: 0.2
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.2 }}
               className="relative z-10 w-[70%] mx-auto px-6"
             >
-
-              {/* Quote */}
               <p className="font-serif italic text-3xl text-white text-center leading-snug mb-6 drop-shadow-md">
                 „Bei uns ist Qualität das Produkt
                 <br />
                 der Liebe zum Detail.“
               </p>
 
-              {/* Divider */}
               <div className="w-12 h-px bg-[#cda1b1]/70 mx-auto mb-6"></div>
 
-              {/* Acrostic Poem */}
               <div className="flex flex-col gap-3">
                 {acrosticPoem.map((line, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-3"
-                  >
+                  <div key={index} className="flex items-center gap-3">
                     <span className="font-serif text-2xl font-medium text-[#cda1b1] w-7 text-right drop-shadow-md shrink-0">
                       {line.letter}
                     </span>
-
                     <span className="font-serif text-sm tracking-[0.18em] uppercase text-white">
                       {line.rest}
                     </span>
                   </div>
                 ))}
               </div>
-
             </motion.div>
           </div>
-
-          {/* Mobile */}
         </div>
       </section>
 
@@ -706,25 +606,16 @@ export default function UnifiedHomePage() {
       ================================================================ */}
 
       <section className="py-16 md:py-24 bg-[#faf8f5] overflow-hidden border-b border-gray-200/50">
-
         <div className="max-w-6xl mx-auto">
-
           <div className="text-center mb-10 md:mb-16 px-6">
-
             <h2 className="font-serif text-4xl md:text-5xl text-[#2d2d2d] mb-4">
               Das sagen unsere Gäste
             </h2>
-
             <div className="flex justify-center items-center gap-2 text-base text-[#a0a0a0] mb-6 font-bold tracking-widest uppercase">
-              <span className="text-[#cda1b1]">
-                ★★★★★
-              </span>
-
+              <span className="text-[#cda1b1]">★★★★★</span>
               Community
             </div>
-
             <div className="w-12 h-px bg-[#cda1b1] mx-auto"></div>
-
           </div>
 
           <div
@@ -736,38 +627,27 @@ export default function UnifiedHomePage() {
                 key={review.id}
                 className="snap-center shrink-0 w-70 md:w-87.5 bg-white p-8 rounded-3xl border border-[#cda1b1]/20 shadow-sm flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300"
               >
-
                 <div>
-
                   <div className="text-[#cda1b1] text-xl mb-4 tracking-widest">
                     {"★".repeat(review.rating)}
                     {"☆".repeat(5 - review.rating)}
                   </div>
-
                   <p className="text-[#2d2d2d] text-base md:text-lg italic leading-relaxed mb-6 font-light">
                     "{review.text}"
                   </p>
-
                 </div>
-
                 <div className="flex items-center gap-3">
-
                   <div className="w-9 h-9 rounded-full bg-[#cda1b1]/20 flex items-center justify-center text-[#cda1b1] font-bold text-sm">
                     {review.author.charAt(0)}
                   </div>
-
                   <p className="text-[#a0a0a0] text-xs md:text-sm font-bold uppercase tracking-widest">
                     {review.author}
                   </p>
-
                 </div>
-
               </div>
             ))}
           </div>
-
         </div>
-
       </section>
 
       {/* ================================================================
@@ -778,26 +658,27 @@ export default function UnifiedHomePage() {
         id="menu-section"
         className="min-h-screen bg-white px-4 md:px-6 py-16 md:py-24 relative overflow-hidden"
       >
-
         {/* ============================================================
             MOBILE / TABLET BACKGROUND IMAGE (Visible below xl)
-            Fixed opacity and removed heavy white layers so it's visible
+            Wrapped in a sticky container so it stays perfectly sized
+            and frames the food properly without stretching to infinity!
         ================================================================ */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 xl:hidden z-0"
         >
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-[0.35]"
-            style={{
-              backgroundImage: `url(${currentMenuImage || '/media/breakfast.jpg'})`,
-              filter: "blur(2px)",
-              transition: "background-image 0.7s ease-in-out"
-            }}
-          />
-          
-          {/* Fade edges gently into white so it blends with sections above and below */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white via-white/10 to-white" />
+          <div className="sticky top-0 w-full h-[100dvh]">
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-[0.35]"
+              style={{
+                backgroundImage: `url(${currentMenuImage || '/media/breakfast.jpg'})`,
+                filter: "blur(1.5px)",
+                transition: "background-image 0.7s ease-in-out"
+              }}
+            />
+            {/* Fade edges gently into white so it blends with sections above and below */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white via-white/10 to-white" />
+          </div>
         </div>
 
         {/* ============================================================
@@ -807,22 +688,20 @@ export default function UnifiedHomePage() {
           aria-hidden="true"
           className="pointer-events-none absolute left-0 top-0 bottom-0 w-[25vw] max-w-[420px] hidden xl:block z-0"
         >
-
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-[0.30]"
-            style={{
-              backgroundImage: `url(${currentMenuImage || '/media/breakfast.jpg'})`,
-              filter: "blur(2px)",
-              transition: "background-image 0.7s ease-in-out"
-            }}
-          />
-
-          {/* Fade image into white towards the center */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-white" />
-
-          {/* Soft overall white overlay */}
-          <div className="absolute inset-0 bg-white/20" />
-
+          <div className="sticky top-0 w-full h-screen">
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-[0.30]"
+              style={{
+                backgroundImage: `url(${currentMenuImage || '/media/breakfast.jpg'})`,
+                filter: "blur(1.5px)",
+                transition: "background-image 0.7s ease-in-out"
+              }}
+            />
+            {/* Fade image into white towards the center */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-white" />
+            {/* Soft overall white overlay */}
+            <div className="absolute inset-0 bg-white/20" />
+          </div>
         </div>
 
         {/* ============================================================
@@ -832,148 +711,80 @@ export default function UnifiedHomePage() {
           aria-hidden="true"
           className="pointer-events-none absolute right-0 top-0 bottom-0 w-[25vw] max-w-[420px] hidden xl:block z-0"
         >
-
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-[0.30]"
-            style={{
-              backgroundImage: `url(${currentMenuImage || '/media/breakfast.jpg'})`,
-              filter: "blur(2px)",
-              transition: "background-image 0.7s ease-in-out"
-            }}
-          />
-
-          {/* Fade image into white towards the center */}
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-white" />
-
-          {/* Soft overall white overlay */}
-          <div className="absolute inset-0 bg-white/20" />
-
+          <div className="sticky top-0 w-full h-screen">
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-[0.30]"
+              style={{
+                backgroundImage: `url(${currentMenuImage || '/media/breakfast.jpg'})`,
+                filter: "blur(1.5px)",
+                transition: "background-image 0.7s ease-in-out"
+              }}
+            />
+            {/* Fade image into white towards the center */}
+            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-white" />
+            {/* Soft overall white overlay */}
+            <div className="absolute inset-0 bg-white/20" />
+          </div>
         </div>
 
         {/* ============================================================
             SUBTLE DECORATIVE SIDE LINES
         ================================================================ */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-[7vw] top-[22%] hidden xl:block w-20 h-px bg-[#cda1b1]/20 rotate-90 z-0"
-        />
-
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute right-[7vw] top-[38%] hidden xl:block w-28 h-px bg-[#cda1b1]/20 rotate-90 z-0"
-        />
+        <div aria-hidden="true" className="pointer-events-none absolute left-[7vw] top-[22%] hidden xl:block w-20 h-px bg-[#cda1b1]/20 rotate-90 z-0" />
+        <div aria-hidden="true" className="pointer-events-none absolute right-[7vw] top-[38%] hidden xl:block w-28 h-px bg-[#cda1b1]/20 rotate-90 z-0" />
 
         {/* ============================================================
             EXISTING MENU CONTENT
         ================================================================ */}
         <div className="max-w-4xl mx-auto relative z-10">
-
           <div className="text-center mb-10 md:mb-16">
-
             <h2 className="font-serif text-4xl md:text-5xl text-[#2d2d2d] mb-4 md:mb-6">
               Maine Menü
             </h2>
-
             <div className="w-12 h-px bg-[#cda1b1] mx-auto"></div>
-
           </div>
 
           <div className="flex justify-start lg:justify-center lg:flex-wrap gap-2 mb-10 md:mb-16 overflow-x-auto lg:overflow-x-visible hide-scrollbar pb-4 lg:pb-0 snap-x snap-mandatory">
-
             {menuCategories.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`snap-center shrink-0 relative px-5 md:px-6 py-3 text-xs md:text-sm font-bold tracking-widest uppercase transition-colors ${
-                  activeTab === tab
-                    ? "text-[#1c1a1d]"
-                    : "text-[#a0a0a0] hover:text-[#2d2d2d]"
+                  activeTab === tab ? "text-[#1c1a1d]" : "text-[#a0a0a0] hover:text-[#2d2d2d]"
                 }`}
               >
-
                 {activeTab === tab && (
                   <motion.div
                     layoutId="active-tab"
                     className="absolute inset-0 bg-[#ebd2db] rounded-full z-0"
-                    transition={{
-                      type: "spring",
-                      stiffness: 400,
-                      damping: 30
-                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
-
-                <span className="relative z-10">
-                  {tab}
-                </span>
-
+                <span className="relative z-10">{tab}</span>
               </button>
             ))}
-
           </div>
 
           <AnimatePresence mode="wait">
-
             <motion.div
               key={activeTab}
-              initial={{
-                opacity: 0,
-                y: 15
-              }}
-              animate={{
-                opacity: 1,
-                y: 0
-              }}
-              exit={{
-                opacity: 0,
-                y: -15
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 260,
-                damping: 25
-              }}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ type: "spring", stiffness: 260, damping: 25 }}
               className="relative bg-linear-to-br from-[#faf8f5] to-[#f3ece9] border border-[#cda1b1]/30 rounded-3xl p-6 md:p-16 shadow-sm min-h-100 overflow-hidden"
             >
-
-              {/* Existing watermark */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none select-none absolute -bottom-10 -right-10 font-(family-name:--font-great-vibes) text-[10rem] md:text-[14rem] text-[#cda1b1]/6 leading-none -rotate-6 z-0"
-              >
+              <div aria-hidden="true" className="pointer-events-none select-none absolute -bottom-10 -right-10 font-(family-name:--font-great-vibes) text-[10rem] md:text-[14rem] text-[#cda1b1]/6 leading-none -rotate-6 z-0">
                 MainBar
               </div>
+              <div aria-hidden="true" className="pointer-events-none absolute -top-16 -left-16 w-64 h-64 rounded-full border border-[#cda1b1]/15 z-0" />
+              <div aria-hidden="true" className="pointer-events-none absolute -top-10 -left-10 w-48 h-48 rounded-full border border-[#cda1b1]/20 z-0" />
 
-              {/* Existing decorative circles */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-16 -left-16 w-64 h-64 rounded-full border border-[#cda1b1]/15 z-0"
-              />
-
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-10 -left-10 w-48 h-48 rounded-full border border-[#cda1b1]/20 z-0"
-              />
-
-              {/* Existing category image */}
               {currentMenuImage && (
                 <motion.div
-                  initial={{
-                    opacity: 0,
-                    scale: 0.8,
-                    rotate: -5
-                  }}
-                  animate={{
-                    opacity: 1,
-                    scale: 1,
-                    rotate: 3
-                  }}
-                  transition={{
-                    delay: 0.15,
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 20
-                  }}
+                  initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 3 }}
+                  transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 20 }}
                   className="hidden md:block absolute -top-8 -right-8 w-48 h-48 rounded-2xl overflow-hidden shadow-xl border-4 border-white z-20 pointer-events-none"
                 >
                   <Image
@@ -987,102 +798,62 @@ export default function UnifiedHomePage() {
               )}
 
               <div className="relative z-10 w-full md:w-3/4 pr-0 md:pr-8">
-
-                {mainItems.length === 0 &&
-                activeExtras.length === 0 ? (
+                {mainItems.length === 0 && activeExtras.length === 0 ? (
                   <p className="text-[#a0a0a0] text-base py-10 text-center">
                     Keine Gerichte in dieser Kategorie gefunden.
                   </p>
                 ) : (
                   <>
                     {mainItems.map((item: any) => (
-                      <div
-                        key={item.id}
-                        className="mb-7 md:mb-9 group"
-                      >
-
+                      <div key={item.id} className="mb-7 md:mb-9 group">
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline border-b border-gray-300/50 pb-2 mb-2 gap-1 sm:gap-4">
-
                           <h3 className="font-serif text-lg md:text-xl text-[#2d2d2d] group-hover:text-[#cda1b1] transition-colors flex items-center gap-2.5">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="currentColor"
-                              className="w-4 h-4 md:w-5 md:h-5 text-[#d66a7a] opacity-80 shrink-0"
-                            >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 md:w-5 md:h-5 text-[#d66a7a] opacity-80 shrink-0">
                               <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                             </svg>
                             {item.name}
                           </h3>
-
                           <span className="font-bold text-[#cda1b1] text-base md:text-lg whitespace-nowrap pl-6 sm:pl-0">
                             € {item.price}
                           </span>
-
                         </div>
-
                         {item.description && (
                           <p className="text-sm md:text-base text-[#808080] leading-relaxed font-light pl-6 md:pr-12 md:pl-7.5">
                             {item.description}
                           </p>
                         )}
-
                       </div>
                     ))}
 
-                    {/* EXTRAS box */}
                     {activeExtras.length > 0 && (
                       <div className="mt-8 rounded-2xl border border-[#cda1b1]/40 bg-white/60 p-5 md:p-6 relative">
-
                         <h4 className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] text-[#cda1b1] mb-4">
                           Extras
                         </h4>
-
                         <div className="flex flex-col gap-2.5">
-
                           {activeExtras.map((item: any) => (
-                            <div
-                              key={item.id}
-                              className="flex items-baseline gap-2 text-sm md:text-base text-[#2d2d2d]"
-                            >
-
+                            <div key={item.id} className="flex items-baseline gap-2 text-sm md:text-base text-[#2d2d2d]">
                               <span className="flex items-center gap-1.5">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  fill="currentColor"
-                                  className="w-3 h-3 text-[#d66a7a] opacity-70 shrink-0"
-                                >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 text-[#d66a7a] opacity-70 shrink-0">
                                   <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                                 </svg>
                                 {item.name}
                               </span>
-
                               <span className="flex-1 border-b border-dotted border-gray-300 -translate-y-0.75" />
-
                               <span className="font-bold text-[#cda1b1] whitespace-nowrap">
                                 € {item.price}
                               </span>
-
                             </div>
                           ))}
-
                         </div>
-
                       </div>
                     )}
-
                   </>
                 )}
-
               </div>
-
             </motion.div>
-
           </AnimatePresence>
-
         </div>
-
       </section>
 
       {/* ================================================================
@@ -1090,152 +861,74 @@ export default function UnifiedHomePage() {
       ================================================================ */}
 
       <footer className="bg-[#1c1a1d] text-white py-16 px-6 md:px-12 border-t border-[#cda1b1]/20">
-
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-
           <div className="flex flex-col items-center md:items-start">
-
             <h2 className="font-(family-name:--font-great-vibes) text-5xl text-[#cda1b1] mb-4">
               MainBar
             </h2>
-
             <p className="text-[#a0a0a0] text-sm leading-relaxed text-center md:text-left">
               Qualität ist das Produkt
               <br />
               der Liebe zum Detail.
             </p>
-
           </div>
 
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
-
             <h3 className="text-xs tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">
               Besuchen Sie uns
             </h3>
-
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=Spitalstra%C3%9Fe%2019%2C%2097421%20Schweinfurt"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-base text-gray-300 hover:text-[#cda1b1] mb-3 transition-colors"
-            >
+            <a href="https://www.google.com/maps/search/?api=1&query=Spitalstra%C3%9Fe%2019%2C%2097421%20Schweinfurt" target="_blank" rel="noopener noreferrer" className="text-base text-gray-300 hover:text-[#cda1b1] mb-3 transition-colors">
               Spitalstraße 19
               <br />
               97421 Schweinfurt
             </a>
-
-            <a
-              href="tel:+491702278096"
-              className="text-base text-gray-300 hover:text-[#cda1b1] transition-colors"
-            >
+            <a href="tel:+491702278096" className="text-base text-gray-300 hover:text-[#cda1b1] transition-colors">
               +49 170 2278096
             </a>
-
           </div>
 
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
-
             <h3 className="text-xs tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">
               Öffnungszeiten
             </h3>
-
-            <p className="text-base text-gray-300 mb-2">
-              Mo: Ruhetag
-            </p>
-
-            <p className="text-base text-gray-300 mb-2">
-              Di - Sa: 09:30 - 18:00 Uhr
-            </p>
-
-            <p className="text-base text-gray-300">
-              Sonn- u. Feiertage: 10:00 - 18:00 Uhr
-            </p>
-
+            <p className="text-base text-gray-300 mb-2">Mo: Ruhetag</p>
+            <p className="text-base text-gray-300 mb-2">Di - Sa: 09:30 - 18:00 Uhr</p>
+            <p className="text-base text-gray-300">Sonn- u. Feiertage: 10:00 - 18:00 Uhr</p>
           </div>
 
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
-
             <h3 className="text-xs tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">
               Social Media
             </h3>
-
-            <a
-              href="https://www.instagram.com/mainbar_sw/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-base text-gray-300 hover:text-[#cda1b1] transition-colors flex items-center gap-2 group"
-            >
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="group-hover:scale-110 transition-transform"
-              >
-                <rect
-                  width="20"
-                  height="20"
-                  x="2"
-                  y="2"
-                  rx="5"
-                />
-
+            <a href="https://www.instagram.com/mainbar_sw/" target="_blank" rel="noopener noreferrer" className="text-base text-gray-300 hover:text-[#cda1b1] transition-colors flex items-center gap-2 group">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
+                <rect width="20" height="20" x="2" y="2" rx="5" />
                 <path d="M16.11 7.5v.01" />
-
                 <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
               </svg>
-
               Instagram
-
             </a>
-
           </div>
-
         </div>
 
         <div className="max-w-6xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-
           <p className="text-xs text-[#a0a0a0] uppercase tracking-widest">
             © {new Date().getFullYear()} MainBar Schweinfurt
           </p>
-
           <div className="flex gap-6">
-
-            <Link
-              href="/impressum"
-              className="text-xs text-[#a0a0a0] hover:text-white uppercase tracking-widest transition-colors"
-            >
+            <Link href="/impressum" className="text-xs text-[#a0a0a0] hover:text-white uppercase tracking-widest transition-colors">
               Impressum
             </Link>
-
-            <Link
-              href="/datenschutz"
-              className="text-xs text-[#a0a0a0] hover:text-white uppercase tracking-widest transition-colors"
-            >
+            <Link href="/datenschutz" className="text-xs text-[#a0a0a0] hover:text-white uppercase tracking-widest transition-colors">
               Datenschutz
             </Link>
-
           </div>
-
         </div>
-
       </footer>
 
-      <Link
-        href="/admin"
-        className="absolute bottom-0 right-0 w-16 h-16 bg-transparent text-transparent cursor-default select-none z-0"
-        tabIndex={-1}
-        aria-hidden="true"
-      >
+      <Link href="/admin" className="absolute bottom-0 right-0 w-16 h-16 bg-transparent text-transparent cursor-default select-none z-0" tabIndex={-1} aria-hidden="true">
         .
       </Link>
-
     </main>
   );
 }
