@@ -564,7 +564,7 @@ export default function UnifiedHomePage() {
         <div className="relative z-20 w-full h-full flex">
 
           {/* LEFT – Branding */}
-          <div className="w-full lg:w-1/2 h-full flex flex-col items-center justify-center text-center px-8 lg:pl-12 lg:pr-6 lg:-translate-x-3">
+          <div className="w-full lg:w-1/2 h-full flex flex-col items-center justify-center text-center px-8">
 
             <motion.div
               initial={{
@@ -578,13 +578,13 @@ export default function UnifiedHomePage() {
               transition={{
                 duration: 0.8
               }}
-              className="relative flex flex-col items-center -translate-y-1.75"
+              className="relative flex flex-col items-center -translate-y-1.75 w-full"
             >
 
               {/* Decorative circles */}
-              <div className="absolute w-44 h-44 md:w-52 md:h-52 border-2 border-[#cda1b1]/55 rounded-full -top-7 left-1/2 translate-x-[-58%] z-0 pointer-events-none"></div>
+              <div className="absolute w-44 h-44 md:w-52 md:h-52 border-2 border-[#cda1b1]/55 rounded-full -top-7 left-1/2 translate-x-[-50%] z-0 pointer-events-none"></div>
 
-              <div className="absolute w-44 h-44 md:w-52 md:h-52 border-2 border-[#cda1b1]/55 rounded-full -top-5 left-1/2 translate-x-[-38%] z-0 pointer-events-none"></div>
+              <div className="absolute w-44 h-44 md:w-52 md:h-52 border-2 border-[#cda1b1]/55 rounded-full -top-5 left-1/2 translate-x-[-50%] z-0 pointer-events-none"></div>
 
               <h1 className="font-(family-name:--font-great-vibes) text-8xl md:text-9xl lg:text-[9.5rem] text-[#cda1b1] relative z-10 leading-none drop-shadow-2xl">
                 MainBar
@@ -604,7 +604,7 @@ export default function UnifiedHomePage() {
               Café & Patisserie
             </motion.h2>
 
-            <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 w-full">
 
               <motion.button
                 onClick={scrollToMenu}
@@ -770,7 +770,6 @@ export default function UnifiedHomePage() {
 
       {/* ================================================================
           ELEGANT MENU SECTION
-          ONLY NEW ADDITION: SIDE BACKGROUND IMAGE
       ================================================================ */}
 
       <section
@@ -780,7 +779,6 @@ export default function UnifiedHomePage() {
 
         {/* ============================================================
             LEFT MARGIN BACKGROUND IMAGE
-            Very subtle and faded so it flows naturally with the page.
         ================================================================ */}
         <div
           aria-hidden="true"
@@ -980,18 +978,26 @@ export default function UnifiedHomePage() {
 
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline border-b border-gray-300/50 pb-2 mb-2 gap-1 sm:gap-4">
 
-                          <h3 className="font-serif text-lg md:text-xl text-[#2d2d2d] group-hover:text-[#cda1b1] transition-colors">
+                          <h3 className="font-serif text-lg md:text-xl text-[#2d2d2d] group-hover:text-[#cda1b1] transition-colors flex items-center gap-2.5">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="w-4 h-4 md:w-5 md:h-5 text-[#d66a7a] opacity-80 shrink-0"
+                            >
+                              <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                            </svg>
                             {item.name}
                           </h3>
 
-                          <span className="font-bold text-[#cda1b1] text-base md:text-lg whitespace-nowrap">
+                          <span className="font-bold text-[#cda1b1] text-base md:text-lg whitespace-nowrap pl-6 sm:pl-0">
                             € {item.price}
                           </span>
 
                         </div>
 
                         {item.description && (
-                          <p className="text-sm md:text-base text-[#808080] leading-relaxed font-light md:pr-12">
+                          <p className="text-sm md:text-base text-[#808080] leading-relaxed font-light pl-6 md:pr-12 md:pl-7.5">
                             {item.description}
                           </p>
                         )}
@@ -1015,7 +1021,15 @@ export default function UnifiedHomePage() {
                               className="flex items-baseline gap-2 text-sm md:text-base text-[#2d2d2d]"
                             >
 
-                              <span>
+                              <span className="flex items-center gap-1.5">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="currentColor"
+                                  className="w-3 h-3 text-[#d66a7a] opacity-70 shrink-0"
+                                >
+                                  <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                                </svg>
                                 {item.name}
                               </span>
 
