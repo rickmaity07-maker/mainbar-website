@@ -578,19 +578,21 @@ export default function UnifiedHomePage() {
               transition={{
                 duration: 0.8
               }}
-              className="relative flex flex-col items-center -translate-y-1.75 w-full"
+              className="flex flex-col items-center -translate-y-1.75"
             >
+              {/* This wrapper locks the circles tightly to the logo text size */}
+              <div className="relative inline-flex flex-col items-center justify-center">
+                
+                {/* Decorative circles - EXACTLY as they were originally */}
+                <div className="absolute w-44 h-44 md:w-52 md:h-52 border-2 border-[#cda1b1]/55 rounded-full -top-7 left-1/2 translate-x-[-58%] z-0 pointer-events-none"></div>
+                <div className="absolute w-44 h-44 md:w-52 md:h-52 border-2 border-[#cda1b1]/55 rounded-full -top-5 left-1/2 translate-x-[-38%] z-0 pointer-events-none"></div>
+                
+                <h1 className="font-(family-name:--font-great-vibes) text-8xl md:text-9xl lg:text-[9.5rem] text-[#cda1b1] relative z-10 leading-none drop-shadow-2xl">
+                  MainBar
+                </h1>
+              </div>
 
-              {/* Decorative circles */}
-              <div className="absolute w-44 h-44 md:w-52 md:h-52 border-2 border-[#cda1b1]/55 rounded-full -top-7 left-1/2 translate-x-[-50%] z-0 pointer-events-none"></div>
-
-              <div className="absolute w-44 h-44 md:w-52 md:h-52 border-2 border-[#cda1b1]/55 rounded-full -top-5 left-1/2 translate-x-[-50%] z-0 pointer-events-none"></div>
-
-              <h1 className="font-(family-name:--font-great-vibes) text-8xl md:text-9xl lg:text-[9.5rem] text-[#cda1b1] relative z-10 leading-none drop-shadow-2xl">
-                MainBar
-              </h1>
-
-              <div className="text-sm md:text-base tracking-[0.4em] text-white uppercase mt-2 z-10 drop-shadow-md">
+              <div className="text-sm md:text-base tracking-[0.4em] text-white uppercase mt-2 z-10 drop-shadow-md text-center">
                 Drinks & Food
               </div>
             </motion.div>
@@ -599,7 +601,7 @@ export default function UnifiedHomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-white tracking-[0.25em] uppercase text-base md:text-lg font-medium mt-10 mb-10 drop-shadow-md"
+              className="text-white tracking-[0.25em] uppercase text-base md:text-lg font-medium mt-10 mb-10 drop-shadow-md text-center"
             >
               Café & Patisserie
             </motion.h2>
@@ -632,7 +634,7 @@ export default function UnifiedHomePage() {
 
               <Link
                 href="/booking"
-                className="text-white hover:text-[#cda1b1] uppercase tracking-widest text-sm transition-colors border-b border-white/50 hover:border-[#cda1b1] pb-1 drop-shadow-md"
+                className="text-white hover:text-[#cda1b1] uppercase tracking-widest text-sm transition-colors border-b border-white/50 hover:border-[#cda1b1] pb-1 drop-shadow-md text-center"
               >
                 Event & Catering Buchen
               </Link>
