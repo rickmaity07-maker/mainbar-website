@@ -1,30 +1,52 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from "firebase/auth";
-import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { auth, db } from "../../lib/firebase"; 
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User,
+} from "firebase/auth";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  getDocs,
+} from "firebase/firestore";
+import { auth, db } from "../../lib/firebase";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 const menuCategories = [
-  "FRÜHSTÜCK", "GESCHMACKSSACHEN", "WINZERFLADEN",
-  "HEISSGETRÄNKE", "ALKOHOLFREI", "APERITIF & BIER", "WEINE & LONGDRINKS"
+  "FRÜHSTÜCK",
+  "GESCHMACKSSACHEN",
+  "WINZERFLADEN",
+  "HEISSGETRÄNKE",
+  "ALKOHOLFREI",
+  "APERITIF & BIER",
+  "WEINE & LONGDRINKS",
 ];
+
+type SizeOption = {
+  label: string;
+  price: string;
+};
 
 export default function AdminPortal() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  // Navigation State ("bookings", "old_bookings", "menu")
+
   const [activeTab, setActiveTab] = useState("bookings");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Data State
   const [bookings, setBookings] = useState<any[]>([]);
   const [menuItems, setMenuItems] = useState<any[]>([]);
-  
-  // Menu Form State
+
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [menuForm, setMenuForm] = useState({
@@ -33,36 +55,42 @@ export default function AdminPortal() {
     description: "",
     price: "",
     image_url: "",
-    isExtra: false
+    isExtra: false,
+    sizes: [] as SizeOption[],
   });
 
-  // Login Form State
+  const [isBulkImporting, setIsBulkImporting] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState("");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // 1. Listen for Authentication changes
+  // Auth
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsub = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
     });
-    return () => unsubscribe();
+    return () => unsub();
   }, []);
 
-  // 2. Fetch live data from Firestore when user is logged in
+  // Live data
   useEffect(() => {
     if (!user) return;
 
-    const qBookings = query(collection(db, "bookings"), orderBy("createdAt", "desc"));
-    const unsubBookings = onSnapshot(qBookings, (snapshot) => {
-      setBookings(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    const qBookings = query(
+      collection(db, "bookings"),
+      orderBy("createdAt", "desc")
+    );
+    const unsubBookings = onSnapshot(qBookings, (snap) => {
+      setBookings(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
 
     const qMenu = query(collection(db, "menu"));
-    const unsubMenu = onSnapshot(qMenu, (snapshot) => {
-      setMenuItems(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    const unsubMenu = onSnapshot(qMenu, (snap) => {
+      setMenuItems(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
 
     return () => {
@@ -71,12 +99,11 @@ export default function AdminPortal() {
     };
   }, [user]);
 
-  // Close mobile menu when tab changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [activeTab]);
 
-  // --- AUTH HANDLERS ---
+  // ---------- AUTH ----------
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -84,7 +111,10 @@ export default function AdminPortal() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err: any) {
-      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+      if (
+        err.code === "auth/invalid-credential" ||
+        err.code === "auth/wrong-password"
+      ) {
         setError("Falsche E-Mail oder Passwort.");
       } else {
         setError(`Fehler: ${err.message}`);
@@ -99,32 +129,31 @@ export default function AdminPortal() {
     setIsMobileMenuOpen(false);
   };
 
-  // --- BOOKING STATUS HANDLER ---
-  const handleStatusChange = async (bookingId: string, newStatus: string) => {
+  // ---------- BOOKINGS ----------
+  const handleStatusChange = async (id: string, status: string) => {
     try {
-      await updateDoc(doc(db, "bookings", bookingId), { status: newStatus });
-    } catch (error) {
-      console.error("Error updating status:", error);
+      await updateDoc(doc(db, "bookings", id), { status });
+    } catch (err) {
+      console.error(err);
       alert("Fehler beim Aktualisieren des Status.");
     }
   };
 
-  // --- FILTER BOOKINGS BY DATE ---
   const todayStr = new Date().toISOString().split("T")[0];
+  const activeBookings = bookings.filter((b) => !b.date || b.date >= todayStr);
+  const oldBookings = bookings.filter((b) => b.date && b.date < todayStr);
 
-  const activeBookings = bookings.filter(b => {
-    if (!b.date) return true; 
-    return b.date >= todayStr;
-  });
-
-  const oldBookings = bookings.filter(b => {
-    if (!b.date) return false;
-    return b.date < todayStr;
-  });
-
-  // --- MENU HANDLERS ---
+  // ---------- MENU ----------
   const resetMenuForm = () => {
-    setMenuForm({ category: menuCategories[0], name: "", description: "", price: "", image_url: "", isExtra: false });
+    setMenuForm({
+      category: menuCategories[0],
+      name: "",
+      description: "",
+      price: "",
+      image_url: "",
+      isExtra: false,
+      sizes: [],
+    });
     setEditingId(null);
     setIsMenuModalOpen(false);
   };
@@ -132,89 +161,749 @@ export default function AdminPortal() {
   const handleMenuSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const cleanedSizes = menuForm.sizes.filter(
+        (s) => s.label.trim() && s.price.trim()
+      );
+
+      const payload = {
+        ...menuForm,
+        sizes: cleanedSizes.length > 0 ? cleanedSizes : null,
+      };
+
       if (editingId) {
-        await updateDoc(doc(db, "menu", editingId), menuForm);
+        await updateDoc(doc(db, "menu", editingId), payload);
       } else {
-        await addDoc(collection(db, "menu"), menuForm);
+        await addDoc(collection(db, "menu"), payload);
       }
       resetMenuForm();
-    } catch (error) {
-      console.error("Error saving menu item:", error);
-      alert("Fehler beim Speichern des Gerichts.");
+    } catch (err) {
+      console.error(err);
+      alert("Fehler beim Speichern.");
     }
   };
 
   const handleEditClick = (item: any) => {
     setMenuForm({
-      category: item.category,
-      name: item.name,
+      category: item.category || menuCategories[0],
+      name: item.name || "",
       description: item.description || "",
-      price: item.price,
+      price: item.price || "",
       image_url: item.image_url || "",
-      isExtra: item.isExtra || false
+      isExtra: !!item.isExtra,
+      sizes: item.sizes || [],
     });
     setEditingId(item.id);
     setIsMenuModalOpen(true);
   };
 
   const handleDeleteClick = async (id: string) => {
-    if (window.confirm("Möchten Sie dieses Gericht wirklich löschen?")) {
+    if (window.confirm("Wirklich löschen?")) {
       await deleteDoc(doc(db, "menu", id));
     }
   };
 
+  // Size helpers
+  const addSizeRow = () => {
+    setMenuForm((prev) => ({
+      ...prev,
+      sizes: [...prev.sizes, { label: "", price: "" }],
+    }));
+  };
+
+  const updateSizeRow = (
+    index: number,
+    field: "label" | "price",
+    value: string
+  ) => {
+    setMenuForm((prev) => {
+      const newSizes = [...prev.sizes];
+      newSizes[index] = { ...newSizes[index], [field]: value };
+      return { ...prev, sizes: newSizes };
+    });
+  };
+
+  const removeSizeRow = (index: number) => {
+    setMenuForm((prev) => ({
+      ...prev,
+      sizes: prev.sizes.filter((_, i) => i !== index),
+    }));
+  };
+
+  // ---------- BULK REPLACE ----------
+  const handleBulkReplaceMenu = async () => {
+    if (
+      !confirm(
+        "ACHTUNG!\n\nAlle bestehenden Menü-Einträge werden gelöscht und durch das neue Menü ersetzt.\n\nWirklich fortfahren?"
+      )
+    )
+      return;
+
+    setIsBulkImporting(true);
+    setBulkProgress("Lösche alte Einträge...");
+
+    try {
+      const snapshot = await getDocs(collection(db, "menu"));
+      await Promise.all(
+        snapshot.docs.map((d) => deleteDoc(doc(db, "menu", d.id)))
+      );
+
+      setBulkProgress(
+        `Alte Einträge gelöscht (${snapshot.size}). Füge neue hinzu...`
+      );
+
+      const newMenu = [
+        // FRÜHSTÜCK
+        {
+          name: "Die MainBar Frühstücksetagere",
+          description:
+            "Wilder Mix unseres Frühstücksangebots auf einer Etage. Ab 2 Personen. Nur Freitag & Samstag. Unter der Woche nur auf Vorbestellung (min. 1 Tag).",
+          price: "38,90",
+          category: "FRÜHSTÜCK",
+          isExtra: false,
+          sizes: [
+            { label: "ohne Prosecco", price: "38,90" },
+            { label: "mit Prosecco 0,1 l", price: "42,40" },
+          ],
+        },
+        {
+          name: "Das Schweinfurter Markt Frühstück",
+          description:
+            "1 gekochtes Ei, Hart- und Weichkäse, Feigensenf, frisches Avocadomus, selbst eingelegter Feta, hausgemachter Kräuterfrischkäse, Marktgemüse, Butter & selbstgebackenes Brot/Brötchen.",
+          price: "17,90",
+          category: "FRÜHSTÜCK",
+          isExtra: false,
+          sizes: [
+            { label: "ohne O-Saft", price: "17,90" },
+            { label: "mit frisch gepresstem O-Saft 0,25 l", price: "21,90" },
+          ],
+        },
+        {
+          name: "Das Rathaus Frühstück",
+          description:
+            "Büffelmozzarella & Tomate, frisch aufgeschnittener Parmaschinken & italienische Salami, Rührei mit Trüffel, Butter & selbstgebackenes Brot/Brötchen.",
+          price: "17,90",
+          category: "FRÜHSTÜCK",
+          isExtra: false,
+          sizes: [
+            { label: "ohne Prosecco", price: "17,90" },
+            { label: "mit Prosecco 0,1 l", price: "21,40" },
+          ],
+        },
+        {
+          name: "Eggs Benedict",
+          description:
+            "Selbstgebackenes Brot, Rucola, hausgemachtes Basilikum-Pesto, Avocado, Tomate, zwei pochierte Eier, Sauce Hollandaise. Optional +1 € für Räucherlachs oder gekochten Schinken.",
+          price: "13,90",
+          category: "FRÜHSTÜCK",
+          isExtra: false,
+        },
+        {
+          name: "Das kleine Spitalstraßenfrühstück",
+          description:
+            "Marmelade oder Honig, Butter, selbstgebackenes Brot/Brötchen, kleines hausgemachtes Granola mit griechischem Joghurt & frischen Früchten",
+          price: "8,90",
+          category: "FRÜHSTÜCK",
+          isExtra: false,
+        },
+        {
+          name: "Hausgemachtes Granola",
+          description:
+            "Mit cremigem Joghurt und frischen Früchten, getoppt mit Agavendicksaft",
+          price: "8,90",
+          category: "FRÜHSTÜCK",
+          isExtra: false,
+        },
+        {
+          name: "MainBar Rühreier",
+          description: "3 Eier, Greens, Butter, hausgebackenes Brot",
+          price: "7,90",
+          category: "FRÜHSTÜCK",
+          isExtra: false,
+          sizes: [
+            { label: "ohne Bacon", price: "7,90" },
+            { label: "mit Bacon", price: "8,90" },
+          ],
+        },
+        {
+          name: "1× gekochtes Ei",
+          description: "",
+          price: "2,00",
+          category: "FRÜHSTÜCK",
+          isExtra: true,
+        },
+        {
+          name: "Butter | Honig | Frischkäse | Marmelade",
+          description: "",
+          price: "1,50",
+          category: "FRÜHSTÜCK",
+          isExtra: true,
+        },
+        {
+          name: "Portion Lachs & Sahnemeerrettich",
+          description: "",
+          price: "6,00",
+          category: "FRÜHSTÜCK",
+          isExtra: true,
+        },
+        {
+          name: "Portion selbstgebackenes Brot/Brötchen",
+          description: "",
+          price: "3,50",
+          category: "FRÜHSTÜCK",
+          isExtra: true,
+        },
+
+        // GESCHMACKSSACHEN
+        {
+          name: "Avocadomus & Spiegelei",
+          description:
+            "Frisches Avocadomus & Spiegelei, Rucola, Tomate, hausgemachtes Basilikum-Pesto",
+          price: "12,90",
+          category: "GESCHMACKSSACHEN",
+          isExtra: false,
+        },
+        {
+          name: "Pesto, Parmaschinken & Parmesan",
+          description: "Pesto, Parmaschinken, Rucola & Parmesan",
+          price: "13,90",
+          category: "GESCHMACKSSACHEN",
+          isExtra: false,
+        },
+        {
+          name: "Frischkäse, Avocado & Räucherlachs",
+          description:
+            "Frischkäse, frische Avocado & Räucherlachs, Rucola, Tomate",
+          price: "14,90",
+          category: "GESCHMACKSSACHEN",
+          isExtra: false,
+        },
+        {
+          name: "Geräucherter Schinken & Spiegelei",
+          description: "Geräucherter Schinken, Spiegelei & Saure Gurke",
+          price: "11,90",
+          category: "GESCHMACKSSACHEN",
+          isExtra: false,
+        },
+        {
+          name: "Frischkäse, Grillgemüse & Parmesan",
+          description: "Frischkäse, Rucola, Tomate, Grillgemüse, Parmesan",
+          price: "14,90",
+          category: "GESCHMACKSSACHEN",
+          isExtra: false,
+        },
+        {
+          name: "Büffelmozzarella & Basilikum-Pesto",
+          description:
+            "Rucola, hausgemachtes Basilikum-Pesto, Büffelmozzarella, Tomate",
+          price: "12,90",
+          category: "GESCHMACKSSACHEN",
+          isExtra: false,
+        },
+        {
+          name: "Sandwich Hähnchen",
+          description:
+            "Selbstgebackenes Weißbrot, Hähnchen, Tomate, Gurke, Bacon, Salat, Spiegelei, Mainbarsoße",
+          price: "15,50",
+          category: "GESCHMACKSSACHEN",
+          isExtra: false,
+        },
+        {
+          name: "Sandwich Avocado & Mozzarella",
+          description:
+            "Selbstgebackenes Brot, Avocado, Rucola, Tomate, Mozzarella, hausgemachtes Pesto",
+          price: "13,90",
+          category: "GESCHMACKSSACHEN",
+          isExtra: false,
+        },
+        {
+          name: "Sandwich Avocado & Bacon",
+          description:
+            "Selbstgebackenes Brot, Avocado, Bacon, Rucola, Tomate, Mozzarella, hausgemachtes Pesto",
+          price: "14,90",
+          category: "GESCHMACKSSACHEN",
+          isExtra: false,
+        },
+        {
+          name: "Sandwich Pastrami",
+          description:
+            "Selbstgebackenes Brot, Pastrami, Krautsalat, saure Gurken, Old Amsterdam, Chilli-Soße",
+          price: "15,50",
+          category: "GESCHMACKSSACHEN",
+          isExtra: false,
+        },
+        {
+          name: "Toppe dein Sandwich mit MainBar Pommes",
+          description: "",
+          price: "3,90",
+          category: "GESCHMACKSSACHEN",
+          isExtra: true,
+        },
+
+        // WINZERFLADEN
+        {
+          name: "Winzerfladen Klassisch",
+          description:
+            "Schmand – rote Balsamico-Zwiebeln – fränkischer Bauernspeck, Trauben",
+          price: "13,90",
+          category: "WINZERFLADEN",
+          isExtra: false,
+        },
+        {
+          name: "Winzerfladen Mediterran",
+          description:
+            "Schmand – Cherry-Tomaten – Rucola – Parma Schinken – hausgemachtes Pesto – Parmesan",
+          price: "14,90",
+          category: "WINZERFLADEN",
+          isExtra: false,
+        },
+        {
+          name: "Winzerfladen Vegetarisch",
+          description:
+            "Schmand – Rucola – Grillgemüse-Pesto – Parmesan (auch vegan möglich)",
+          price: "14,90",
+          category: "WINZERFLADEN",
+          isExtra: false,
+        },
+        {
+          name: "Winzerfladen Meeresbrise",
+          description:
+            "Dill-Schmand, Rucola, Räucherlachs, Avocado, Tomate, Creme-Fraiche mit Dill",
+          price: "14,90",
+          category: "WINZERFLADEN",
+          isExtra: false,
+        },
+        {
+          name: "Bruschetta",
+          description:
+            "Schmand – gewürfelte Tomaten – Knoblauch – Olivenöl (auch vegan möglich)",
+          price: "13,90",
+          category: "WINZERFLADEN",
+          isExtra: false,
+        },
+
+        // HEISSGETRÄNKE
+        {
+          name: "Cafe Crema",
+          description: "",
+          price: "3,50",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+          sizes: [
+            { label: "Normal", price: "3,50" },
+            { label: "Groß", price: "4,80" },
+          ],
+        },
+        {
+          name: "Cappuccino",
+          description: "",
+          price: "3,90",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+          sizes: [
+            { label: "Normal", price: "3,90" },
+            { label: "Groß", price: "5,40" },
+          ],
+        },
+        {
+          name: "Espresso",
+          description: "",
+          price: "2,80",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+          sizes: [
+            { label: "Einfach", price: "2,80" },
+            { label: "Doppelter", price: "4,40" },
+          ],
+        },
+        {
+          name: "Espresso Macchiato",
+          description: "",
+          price: "3,00",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+        },
+        {
+          name: "Flat White",
+          description: "",
+          price: "5,00",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+        },
+        {
+          name: "Latte Macchiato",
+          description: "",
+          price: "4,80",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+        },
+        {
+          name: "Milchkaffee",
+          description: "",
+          price: "4,80",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+        },
+        {
+          name: "Filterkaffee Pott",
+          description: "",
+          price: "4,80",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+        },
+        {
+          name: "Chai Latte",
+          description: "Tiger Spice oder Vanilla",
+          price: "5,70",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+          sizes: [
+            { label: "ohne Espresso", price: "5,70" },
+            { label: "mit Espresso Shot", price: "6,90" },
+          ],
+        },
+        {
+          name: "Trinkschokolade",
+          description: "",
+          price: "5,40",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+        },
+        {
+          name: "Aufpreis Hafermilch",
+          description: "",
+          price: "0,50",
+          category: "HEISSGETRÄNKE",
+          isExtra: true,
+        },
+        {
+          name: "Tasse Tee",
+          description:
+            "Verschiedene Sorten von MEE TEE: Beerenstark, Earl Grey, Minze, Rooibos Orange, Chai Tee oder Grüner Tee",
+          price: "4,50",
+          category: "HEISSGETRÄNKE",
+          isExtra: false,
+        },
+
+        // ALKOHOLFREI
+        {
+          name: "Rhön Sprudel",
+          description: "Leise oder laut",
+          price: "4,50",
+          category: "ALKOHOLFREI",
+          isExtra: false,
+          sizes: [
+            { label: "0,50 l", price: "4,50" },
+            { label: "0,75 l", price: "5,90" },
+          ],
+        },
+        {
+          name: "Fritz Kola",
+          description: "Normal oder zuckerfrei",
+          price: "4,40",
+          category: "ALKOHOLFREI",
+          isExtra: false,
+          sizes: [{ label: "0,33 l", price: "4,40" }],
+        },
+        {
+          name: "Orangina",
+          description: "Rot oder gelb",
+          price: "4,50",
+          category: "ALKOHOLFREI",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "4,50" }],
+        },
+        {
+          name: "Soda Lemon",
+          description: "",
+          price: "4,50",
+          category: "ALKOHOLFREI",
+          isExtra: false,
+          sizes: [{ label: "0,33 l", price: "4,50" }],
+        },
+        {
+          name: "Saft Schorle",
+          description: "Apfel oder Johannisbeere",
+          price: "3,30",
+          category: "ALKOHOLFREI",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "3,30" }],
+        },
+        {
+          name: "Orangensaft",
+          description: "Frisch gepresst",
+          price: "5,90",
+          category: "ALKOHOLFREI",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "5,90" }],
+        },
+        {
+          name: "Thomas Henry",
+          description: "Tonic Water, Bitter Lemon oder Pink Grapefruit",
+          price: "4,50",
+          category: "ALKOHOLFREI",
+          isExtra: false,
+          sizes: [{ label: "0,20 l", price: "4,50" }],
+        },
+        {
+          name: "Hausgemachte Limonade",
+          description: "Zitrone-Ingwer-Minze oder Himbeer-Rosmarin",
+          price: "5,60",
+          category: "ALKOHOLFREI",
+          isExtra: false,
+          sizes: [{ label: "0,40 l", price: "5,60" }],
+        },
+
+        // APERITIF & BIER
+        {
+          name: "Mainbar Spritz ★",
+          description:
+            "Hausgemachter Zitronen-Ingwer-Sirup – Secco – Zitrone",
+          price: "7,40",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "7,40" }],
+        },
+        {
+          name: "Aperol Spritz",
+          description: "Aperol – Secco – Orange",
+          price: "6,90",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "6,90" }],
+        },
+        {
+          name: "Limoncello Spritz",
+          description: "Limoncello – Secco – Zitrone",
+          price: "6,90",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "6,90" }],
+        },
+        {
+          name: "Campari Spritz",
+          description: "Campari – Secco – Orange",
+          price: "6,90",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "6,90" }],
+        },
+        {
+          name: "Sarti Spritz",
+          description: "Sarti (Blutorangenlikör) – Secco – Bitter Lemon",
+          price: "7,40",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "7,40" }],
+        },
+        {
+          name: "Belsazar Spritz",
+          description: "Belsazar Vermouth Rosé – Secco – Soda – Orange",
+          price: "7,40",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "7,40" }],
+        },
+        {
+          name: "Crodino Spritz",
+          description: "Alkoholfrei – Crodino – Soda – Orange",
+          price: "5,90",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "5,90" }],
+        },
+        {
+          name: "Mainbar Secco",
+          description: "Trocken",
+          price: "4,90",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,10 l", price: "4,90" }],
+        },
+        {
+          name: "Pils, Schlapper Seppel",
+          description: "",
+          price: "4,50",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,33 l", price: "4,50" }],
+        },
+        {
+          name: "Helles, Bayreuther",
+          description: "",
+          price: "4,50",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,33 l", price: "4,50" }],
+        },
+        {
+          name: "Naturtrübes Radler",
+          description: "",
+          price: "4,90",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,50 l", price: "4,90" }],
+        },
+        {
+          name: "Bayreuther Alk. frei",
+          description: "",
+          price: "4,90",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,50 l", price: "4,90" }],
+        },
+        {
+          name: "Hefeweizen (auch alkoholfrei)",
+          description: "",
+          price: "4,90",
+          category: "APERITIF & BIER",
+          isExtra: false,
+          sizes: [{ label: "0,50 l", price: "4,90" }],
+        },
+
+        // WEINE & LONGDRINKS
+        {
+          name: "Silvaner",
+          description: "Trocken · Weingut Schmitt aus Bergtheim",
+          price: "7,20",
+          category: "WEINE & LONGDRINKS",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "7,20" }],
+        },
+        {
+          name: "Pinot Grigio",
+          description: "Trocken",
+          price: "7,50",
+          category: "WEINE & LONGDRINKS",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "7,50" }],
+        },
+        {
+          name: "Scheurebe",
+          description: "Halbtrocken",
+          price: "7,50",
+          category: "WEINE & LONGDRINKS",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "7,50" }],
+        },
+        {
+          name: "Cabernet Dorsa",
+          description: "Rot, Trocken",
+          price: "8,50",
+          category: "WEINE & LONGDRINKS",
+          isExtra: false,
+          sizes: [{ label: "0,25 l", price: "8,50" }],
+        },
+        {
+          name: "Negroni",
+          description: "Tanqueray – Campari – Vermouth Rosso",
+          price: "8,20",
+          category: "WEINE & LONGDRINKS",
+          isExtra: false,
+        },
+        {
+          name: "Espresso Martini",
+          description: "Absolut Vodka – Kahlua Kaffee Likör – Espresso",
+          price: "8,20",
+          category: "WEINE & LONGDRINKS",
+          isExtra: false,
+        },
+        {
+          name: "Absolut Vodka",
+          description: "Mit Red Bull, Bitter Lemon oder Soda",
+          price: "7,90",
+          category: "WEINE & LONGDRINKS",
+          isExtra: false,
+        },
+        {
+          name: "Tanqueray – London Dry",
+          description:
+            "Mit Tonic Water · Herkunft: England · Aromen: Wacholder, Zitrone, Limette",
+          price: "7,90",
+          category: "WEINE & LONGDRINKS",
+          isExtra: false,
+        },
+      ];
+
+      for (let i = 0; i < newMenu.length; i++) {
+        await addDoc(collection(db, "menu"), newMenu[i]);
+        setBulkProgress(`Hinzugefügt: ${i + 1} / ${newMenu.length}`);
+      }
+
+      setBulkProgress("");
+      alert(`Erfolgreich! ${newMenu.length} Gerichte importiert.`);
+    } catch (err: any) {
+      console.error(err);
+      alert("Fehler: " + (err.message || "Unbekannt"));
+    } finally {
+      setIsBulkImporting(false);
+      setBulkProgress("");
+    }
+  };
+
+  // ---------- RENDER ----------
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#faf8f5]">
-        <div className="w-8 h-8 border-4 border-[#cda1b1] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-[#cda1b1] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  // ================= UNAUTHENTICATED VIEW (LOGIN) =================
+  // LOGIN SCREEN
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#353941] p-6 relative">
-        <Link href="/" className="absolute top-8 left-6 text-[#a0a0a0] hover:text-[#cda1b1] text-[10px] md:text-xs font-bold tracking-widest uppercase transition-colors">
+        <Link
+          href="/"
+          className="absolute top-8 left-6 text-[#a0a0a0] hover:text-[#cda1b1] text-xs font-bold tracking-widest uppercase"
+        >
           ← Zurück zur Webseite
         </Link>
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-md bg-white p-8 sm:p-10 rounded-3xl shadow-2xl"
         >
           <div className="text-center mb-8">
-            <h1 className="font-[family-name:var(--font-script)] text-5xl text-[#cda1b1] mb-2">MainBar</h1>
-            <h2 className="text-[#a0a0a0] uppercase tracking-widest text-xs font-bold">Admin Portal</h2>
+            <h1 className="font-[family-name:var(--font-script)] text-5xl text-[#cda1b1] mb-2">
+              MainBar
+            </h1>
+            <h2 className="text-[#a0a0a0] uppercase tracking-widest text-xs font-bold">
+              Admin Portal
+            </h2>
           </div>
           <form onSubmit={handleLogin} className="space-y-6">
-            <div className="flex flex-col">
-              <label className="text-xs uppercase tracking-widest text-[#a0a0a0] mb-2">E-Mail</label>
-              <input 
-                type="email" 
-                required 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-base" 
-                autoComplete="email"
+            <div>
+              <label className="text-xs uppercase tracking-widest text-[#a0a0a0] mb-2 block">
+                E-Mail
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1]"
               />
             </div>
-            <div className="flex flex-col">
-              <label className="text-xs uppercase tracking-widest text-[#a0a0a0] mb-2">Passwort</label>
-              <input 
-                type="password" 
-                required 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-base" 
-                autoComplete="current-password"
+            <div>
+              <label className="text-xs uppercase tracking-widest text-[#a0a0a0] mb-2 block">
+                Passwort
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1]"
               />
             </div>
-            {error && <p className="text-red-500 text-xs font-medium text-center">{error}</p>}
-            <button 
-              type="submit" 
-              disabled={isLoggingIn} 
-              className="w-full mt-4 bg-[#cda1b1] hover:bg-[#ebd2db] text-[#353941] py-4 rounded-full font-semibold uppercase tracking-widest text-xs transition-colors active:scale-[0.98]"
+            {error && (
+              <p className="text-red-500 text-xs text-center">{error}</p>
+            )}
+            <button
+              type="submit"
+              disabled={isLoggingIn}
+              className="w-full bg-[#cda1b1] hover:bg-[#ebd2db] text-[#353941] py-4 rounded-full font-semibold uppercase tracking-widest text-xs"
             >
               {isLoggingIn ? "Wird geladen..." : "Einloggen"}
             </button>
@@ -224,104 +913,98 @@ export default function AdminPortal() {
     );
   }
 
-  // ================= AUTHENTICATED VIEW (DASHBOARD) =================
+  // DASHBOARD
   return (
     <div className="min-h-screen bg-[#faf8f5] flex flex-col md:flex-row">
-      
-      {/* ========== MOBILE TOP BAR ========== */}
-      <header className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm">
+      {/* ===== MOBILE TOP BAR ===== */}
+      <header className="md:hidden sticky top-0 z-40 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="p-2 -ml-2 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-colors"
-            aria-label="Menü öffnen"
+            className="p-2 -ml-2"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#2d2d2d]">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="3" y1="6" x2="21" y2="6" />
               <line x1="3" y1="12" x2="21" y2="12" />
               <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
-          <h1 className="font-[family-name:var(--font-script)] text-2xl text-[#cda1b1] leading-none">MainBar</h1>
+          <h1 className="font-[family-name:var(--font-script)] text-2xl text-[#cda1b1]">
+            MainBar
+          </h1>
         </div>
         <button
           onClick={handleLogout}
-          className="text-[11px] font-bold uppercase tracking-widest text-red-400 px-3 py-1.5 rounded-full hover:bg-red-50 active:bg-red-100 transition-colors"
+          className="text-xs font-bold uppercase tracking-widest text-red-400"
         >
           Ausloggen
         </button>
       </header>
 
-      {/* ========== MOBILE DRAWER ========== */}
+      {/* ===== MOBILE DRAWER ===== */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-50 bg-black/40 md:hidden"
             />
-            
-            {/* Drawer */}
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
-              className="fixed top-0 left-0 bottom-0 z-50 w-[280px] max-w-[85vw] bg-white shadow-2xl flex flex-col md:hidden"
+              className="fixed top-0 left-0 bottom-0 z-50 w-72 bg-white shadow-2xl flex flex-col md:hidden"
             >
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                <h1 className="font-[family-name:var(--font-script)] text-3xl text-[#cda1b1]">MainBar</h1>
-                <button
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 -mr-2 rounded-xl hover:bg-gray-50 text-gray-400"
-                  aria-label="Menü schließen"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
+              <div className="p-6 border-b flex justify-between items-center">
+                <h1 className="font-[family-name:var(--font-script)] text-3xl text-[#cda1b1]">
+                  MainBar
+                </h1>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="text-2xl">
+                  ×
                 </button>
               </div>
 
-              <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
-                <button 
+              <nav className="flex-1 p-4 space-y-1">
+                <button
                   onClick={() => setActiveTab("bookings")}
-                  className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-colors ${activeTab === "bookings" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d]"}`}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold ${
+                    activeTab === "bookings" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0]"
+                  }`}
                 >
                   📅 Event Anfragen ({activeBookings.length})
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveTab("old_bookings")}
-                  className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-colors ${activeTab === "old_bookings" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d]"}`}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold ${
+                    activeTab === "old_bookings" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0]"
+                  }`}
                 >
                   📁 Vergangene Events ({oldBookings.length})
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveTab("menu")}
-                  className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-colors ${activeTab === "menu" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d]"}`}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold ${
+                    activeTab === "menu" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0]"
+                  }`}
                 >
                   🍽️ Menü Manager
                 </button>
               </nav>
 
-              <div className="p-4 border-t border-gray-100 space-y-1">
-                <p className="px-4 py-2 text-[11px] text-[#a0a0a0] truncate">
-                  {user.email}
-                </p>
-                <Link 
-                  href="/" 
+              <div className="p-4 border-t space-y-1">
+                <Link
+                  href="/"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block w-full text-left px-4 py-3.5 text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d] rounded-xl text-sm font-bold tracking-wide transition-colors"
+                  className="block w-full text-left px-4 py-3 text-[#a0a0a0] hover:bg-[#faf8f5] rounded-xl text-sm font-bold"
                 >
                   🌐 Zur Webseite
                 </Link>
-                <button 
-                  onClick={handleLogout} 
-                  className="w-full text-left px-4 py-3.5 text-red-400 hover:bg-red-50 rounded-xl text-sm font-bold tracking-wide transition-colors"
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-50 rounded-xl text-sm font-bold"
                 >
                   Ausloggen
                 </button>
@@ -331,221 +1014,198 @@ export default function AdminPortal() {
         )}
       </AnimatePresence>
 
-      {/* ========== DESKTOP SIDEBAR ========== */}
-      <aside className="w-64 bg-white border-r border-gray-100 hidden md:flex flex-col shrink-0">
-        <div className="p-8 border-b border-gray-100">
-          <h1 className="font-[family-name:var(--font-script)] text-3xl text-[#cda1b1]">MainBar</h1>
+      {/* ===== DESKTOP SIDEBAR ===== */}
+      <aside className="w-64 bg-white border-r border-gray-100 hidden md:flex flex-col">
+        <div className="p-8 border-b">
+          <h1 className="font-[family-name:var(--font-script)] text-3xl text-[#cda1b1]">
+            MainBar
+          </h1>
         </div>
-        
-        <nav className="flex-grow p-4 space-y-2">
-          <button 
+
+        <nav className="flex-1 p-4 space-y-2">
+          <button
             onClick={() => setActiveTab("bookings")}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-colors ${activeTab === "bookings" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d]"}`}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold ${
+              activeTab === "bookings" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5]"
+            }`}
           >
             📅 Event Anfragen ({activeBookings.length})
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("old_bookings")}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-colors ${activeTab === "old_bookings" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d]"}`}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold ${
+              activeTab === "old_bookings" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5]"
+            }`}
           >
             📁 Vergangene Events ({oldBookings.length})
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("menu")}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold tracking-wide transition-colors ${activeTab === "menu" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d]"}`}
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold ${
+              activeTab === "menu" ? "bg-[#faf8f5] text-[#2d2d2d]" : "text-[#a0a0a0] hover:bg-[#faf8f5]"
+            }`}
           >
             🍽️ Menü Manager
           </button>
         </nav>
 
-        <div className="p-4 border-t border-gray-100 space-y-2">
-          <Link href="/" className="block w-full text-left px-4 py-3 text-[#a0a0a0] hover:bg-[#faf8f5] hover:text-[#2d2d2d] rounded-xl text-sm font-bold tracking-wide transition-colors">
+        <div className="p-4 border-t space-y-2">
+          <Link
+            href="/"
+            className="block w-full text-left px-4 py-3 text-[#a0a0a0] hover:bg-[#faf8f5] rounded-xl text-sm font-bold"
+          >
             🌐 Zur Webseite
           </Link>
-          <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-50 rounded-xl text-sm font-bold tracking-wide transition-colors">
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-50 rounded-xl text-sm font-bold"
+          >
             Ausloggen
           </button>
         </div>
       </aside>
 
-      {/* ========== MAIN CONTENT ========== */}
-      <main className="flex-grow p-4 sm:p-6 md:p-8 lg:p-12 overflow-y-auto max-h-[calc(100vh-57px)] md:max-h-screen relative">
-        <header className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6 sm:mb-10">
+      {/* ===== MAIN CONTENT ===== */}
+      <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-12 overflow-y-auto">
+        <header className="flex justify-between items-center mb-8">
           <h2 className="font-serif text-2xl sm:text-3xl text-[#2d2d2d]">
             {activeTab === "bookings" && "Aktuelle Event Anfragen"}
             {activeTab === "old_bookings" && "Vergangene Events"}
             {activeTab === "menu" && "Menü Manager"}
           </h2>
-          <span className="text-[11px] sm:text-xs font-medium text-[#a0a0a0] bg-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-sm self-start sm:self-auto hidden md:inline-block">
-            Eingeloggt als: {user.email}
+          <span className="hidden md:inline text-xs text-[#a0a0a0] bg-white px-4 py-2 rounded-full shadow-sm">
+            {user.email}
           </span>
         </header>
 
-        {/* --- VIEW: ACTIVE BOOKINGS --- */}
+        {/* BOOKINGS */}
         {activeTab === "bookings" && (
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-4">
             {activeBookings.length === 0 ? (
-              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 text-center py-16 sm:py-20">
-                <p className="text-[#a0a0a0] text-sm">Keine aktuellen Event-Anfragen vorhanden.</p>
+              <div className="bg-white rounded-2xl p-12 text-center text-[#a0a0a0]">
+                Keine aktuellen Anfragen.
               </div>
             ) : (
-              activeBookings.map((booking) => {
-                const currentStatus = booking.status || "Neu";
-                return (
-                  <div 
-                    key={booking.id} 
-                    className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 flex flex-col gap-4"
-                  >
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                      <select
-                        value={currentStatus}
-                        onChange={(e) => handleStatusChange(booking.id, e.target.value)}
-                        className={`px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider cursor-pointer border-0 outline-none ${
-                          currentStatus === "Bestätigt" ? "bg-green-100 text-green-700" :
-                          currentStatus === "Storniert" ? "bg-red-100 text-red-700" :
-                          "bg-amber-100 text-amber-700"
-                        }`}
-                      >
-                        <option value="Neu">Neu / Warteliste</option>
-                        <option value="Bestätigt">Bestätigt</option>
-                        <option value="Storniert">Storniert</option>
-                      </select>
-
-                      <span className="text-xs sm:text-sm font-bold text-[#cda1b1]">
-                        📅 {booking.date ? new Date(booking.date).toLocaleDateString('de-DE') : "Kein Datum"}
-                      </span>
-                    </div>
-
-                    <div>
-                      <p className="text-[#2d2d2d] font-bold text-base sm:text-lg mb-1 break-all">{booking.email}</p>
-                      <div className="text-[#a0a0a0] text-xs sm:text-sm flex flex-col sm:flex-row sm:gap-4 gap-1">
-                        <span>📞 {booking.phone}</span>
-                        <span>📍 {booking.city}, {booking.state}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-[#faf8f5] px-4 sm:px-6 py-3 sm:py-4 rounded-xl">
-                      <p className="text-[10px] sm:text-xs uppercase tracking-widest text-[#a0a0a0] mb-1">Details</p>
-                      <p className="text-[#2d2d2d] font-medium text-sm">
-                        {booking.guests} Personen • {booking.seating === "inside" ? "Im Café" : booking.seating === "outside" ? "Außenbereich" : "Catering"}
-                      </p>
-                    </div>
+              activeBookings.map((b) => (
+                <div key={b.id} className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex flex-wrap gap-3 mb-3">
+                    <select
+                      value={b.status || "Neu"}
+                      onChange={(e) => handleStatusChange(b.id, e.target.value)}
+                      className="px-3 py-1.5 rounded-full text-xs font-bold border-0 bg-amber-100 text-amber-700"
+                    >
+                      <option value="Neu">Neu</option>
+                      <option value="Bestätigt">Bestätigt</option>
+                      <option value="Storniert">Storniert</option>
+                    </select>
+                    <span className="text-sm font-bold text-[#cda1b1]">
+                      📅 {b.date ? new Date(b.date).toLocaleDateString("de-DE") : "Kein Datum"}
+                    </span>
                   </div>
-                );
-              })
+                  <p className="font-bold text-[#2d2d2d]">{b.email}</p>
+                  <p className="text-sm text-[#a0a0a0]">📞 {b.phone} · 📍 {b.city}</p>
+                </div>
+              ))
             )}
           </div>
         )}
 
-        {/* --- VIEW: OLD/PAST BOOKINGS --- */}
+        {/* OLD BOOKINGS */}
         {activeTab === "old_bookings" && (
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-4">
             {oldBookings.length === 0 ? (
-              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 text-center py-16 sm:py-20">
-                <p className="text-[#a0a0a0] text-sm">Keine vergangenen Events vorhanden.</p>
+              <div className="bg-white rounded-2xl p-12 text-center text-[#a0a0a0]">
+                Keine vergangenen Events.
               </div>
             ) : (
-              oldBookings.map((booking) => {
-                const currentStatus = booking.status || "Neu";
-                return (
-                  <div 
-                    key={booking.id} 
-                    className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 opacity-80 flex flex-col gap-4"
-                  >
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                      <span className={`px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider ${
-                        currentStatus === "Bestätigt" ? "bg-green-100 text-green-700" :
-                        currentStatus === "Storniert" ? "bg-red-100 text-red-700" :
-                        "bg-gray-100 text-gray-700"
-                      }`}>
-                        {currentStatus}
-                      </span>
-
-                      <span className="text-xs sm:text-sm font-medium text-gray-500">
-                        📅 {booking.date ? new Date(booking.date).toLocaleDateString('de-DE') : "Kein Datum"} (Vergangen)
-                      </span>
-                    </div>
-
-                    <div>
-                      <p className="text-[#2d2d2d] font-bold text-base sm:text-lg mb-1 break-all">{booking.email}</p>
-                      <div className="text-[#a0a0a0] text-xs sm:text-sm flex flex-col sm:flex-row sm:gap-4 gap-1">
-                        <span>📞 {booking.phone}</span>
-                        <span>📍 {booking.city}, {booking.state}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-[#faf8f5] px-4 sm:px-6 py-3 sm:py-4 rounded-xl">
-                      <p className="text-[10px] sm:text-xs uppercase tracking-widest text-[#a0a0a0] mb-1">Details</p>
-                      <p className="text-[#2d2d2d] font-medium text-sm">
-                        {booking.guests} Personen • {booking.seating === "inside" ? "Im Café" : booking.seating === "outside" ? "Außenbereich" : "Catering"}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })
+              oldBookings.map((b) => (
+                <div key={b.id} className="bg-white rounded-2xl p-5 border border-gray-100 opacity-80">
+                  <p className="font-bold text-[#2d2d2d]">{b.email}</p>
+                  <p className="text-sm text-[#a0a0a0]">
+                    📅 {b.date ? new Date(b.date).toLocaleDateString("de-DE") : "Kein Datum"}
+                  </p>
+                </div>
+              ))
             )}
           </div>
         )}
 
-        {/* --- VIEW: MENU MANAGER --- */}
+        {/* MENU MANAGER */}
         {activeTab === "menu" && (
           <div>
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5 sm:mb-6">
-              <p className="text-[#a0a0a0] text-sm">Verwalten Sie Ihre Speisekarte in Echtzeit.</p>
-              
-              <button 
-                onClick={() => setIsMenuModalOpen(true)}
-                className="bg-[#cda1b1] text-[#353941] px-5 sm:px-6 py-2.5 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-[#ebd2db] transition-colors shadow-sm active:scale-[0.98] self-start sm:self-auto"
-              >
-                + Neues Gericht
-              </button>
-            </div>
-
-            {menuItems.length === 0 ? (
-              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 text-center py-16 sm:py-20">
-                <p className="text-[#a0a0a0] mb-4 text-sm">Ihre Datenbank ist momentan leer.</p>
-                <button onClick={() => setIsMenuModalOpen(true)} className="text-[#cda1b1] font-bold text-sm underline hover:text-[#353941]">
-                  Erstes Gericht hinzufügen
+            <div className="flex flex-col sm:flex-row justify-between gap-3 mb-6">
+              <p className="text-[#a0a0a0] text-sm">Speisekarte verwalten (inkl. Größen)</p>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={handleBulkReplaceMenu}
+                  disabled={isBulkImporting}
+                  className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest ${
+                    isBulkImporting
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "bg-[#2d2d2d] text-white hover:bg-[#cda1b1]"
+                  }`}
+                >
+                  {isBulkImporting ? "Importiere..." : "Komplettes Menü ersetzen"}
+                </button>
+                <button
+                  onClick={() => {
+                    resetMenuForm();
+                    setIsMenuModalOpen(true);
+                  }}
+                  className="bg-[#cda1b1] text-[#353941] px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#ebd2db]"
+                >
+                  + Neues Gericht
                 </button>
               </div>
+            </div>
+
+            {bulkProgress && (
+              <div className="mb-6 bg-[#cda1b1]/10 border border-[#cda1b1]/30 rounded-2xl px-5 py-3 text-sm">
+                {bulkProgress}
+              </div>
+            )}
+
+            {menuItems.length === 0 ? (
+              <div className="bg-white rounded-2xl p-12 text-center text-[#a0a0a0]">
+                Noch keine Gerichte vorhanden.
+              </div>
             ) : (
-              <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 space-y-0">
-                {menuItems.map((item, index) => (
-                  <div 
-                    key={item.id} 
-                    className={`flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 py-4 ${index !== menuItems.length - 1 ? "border-b border-gray-50" : ""}`}
+              <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
+                {menuItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#a0a0a0] bg-gray-100 px-2 py-0.5 rounded-md">
+                    <div>
+                      <div className="flex gap-2 mb-1">
+                        <span className="text-[10px] font-bold uppercase bg-gray-100 px-2 py-0.5 rounded">
                           {item.category}
                         </span>
                         {item.isExtra && (
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-white bg-[#cda1b1] px-2 py-0.5 rounded-md">
+                          <span className="text-[10px] font-bold uppercase bg-[#cda1b1] text-white px-2 py-0.5 rounded">
                             Extra
                           </span>
                         )}
                       </div>
-                      <h4 className="font-serif text-base sm:text-lg text-[#2d2d2d]">{item.name}</h4>
-                      <p className="text-xs text-[#a0a0a0] line-clamp-2 mt-0.5">{item.description || "Keine Beschreibung"}</p>
+                      <h4 className="font-serif text-lg text-[#2d2d2d]">{item.name}</h4>
+                      <p className="text-xs text-[#a0a0a0] line-clamp-1">
+                        {item.description || "Keine Beschreibung"}
+                      </p>
                     </div>
-                    
-                    <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 shrink-0">
-                      <span className="font-bold text-[#cda1b1] whitespace-nowrap text-sm sm:text-base">€ {item.price}</span>
-                      <div className="flex items-center gap-3">
-                        <button 
-                          onClick={() => handleEditClick(item)} 
-                          className="text-blue-500 text-xs sm:text-sm font-medium px-2 py-1 rounded-lg hover:bg-blue-50 active:bg-blue-100"
-                        >
-                          Bearbeiten
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteClick(item.id)} 
-                          className="text-red-500 text-xs sm:text-sm font-medium px-2 py-1 rounded-lg hover:bg-red-50 active:bg-red-100"
-                        >
-                          Löschen
-                        </button>
-                      </div>
+                    <div className="flex items-center gap-4">
+                      <span className="font-bold text-[#cda1b1]">€ {item.price}</span>
+                      <button
+                        onClick={() => handleEditClick(item)}
+                        className="text-blue-500 text-sm font-medium"
+                      >
+                        Bearbeiten
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(item.id)}
+                        className="text-red-500 text-sm font-medium"
+                      >
+                        Löschen
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -554,102 +1214,161 @@ export default function AdminPortal() {
           </div>
         )}
 
-        {/* --- MODAL: ADD/EDIT MENU ITEM --- */}
+        {/* ===== MODAL ===== */}
         <AnimatePresence>
           {isMenuModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm">
-              <motion.div 
-                initial={{ opacity: 0, y: 40 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                exit={{ opacity: 0, y: 40 }}
-                transition={{ type: "spring", stiffness: 320, damping: 32 }}
-                className="bg-white rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 w-full sm:max-w-lg shadow-2xl relative max-h-[92vh] overflow-y-auto"
+            <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4">
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                className="bg-white rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 w-full sm:max-w-lg max-h-[92vh] overflow-y-auto relative shadow-2xl"
               >
-                <button 
+                <button
                   onClick={resetMenuForm}
-                  className="absolute top-5 right-5 text-gray-400 hover:text-[#2d2d2d] font-bold text-2xl leading-none w-8 h-8 flex items-center justify-center"
-                  aria-label="Schließen"
+                  className="absolute top-5 right-5 text-2xl text-gray-400 hover:text-black"
                 >
                   ×
                 </button>
-                
-                <h3 className="font-serif text-xl sm:text-2xl text-[#2d2d2d] mb-6 pr-8">
+
+                <h3 className="font-serif text-xl mb-6 pr-8">
                   {editingId ? "Gericht bearbeiten" : "Neues Gericht hinzufügen"}
                 </h3>
 
                 <form onSubmit={handleMenuSubmit} className="space-y-5">
-                  <div className="flex flex-col">
-                    <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] mb-1">Kategorie</label>
-                    <select 
-                      required 
-                      value={menuForm.category} 
-                      onChange={(e) => setMenuForm({...menuForm, category: e.target.value})}
-                      className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] bg-transparent cursor-pointer text-sm"
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] block mb-1">
+                      Kategorie
+                    </label>
+                    <select
+                      value={menuForm.category}
+                      onChange={(e) =>
+                        setMenuForm({ ...menuForm, category: e.target.value })
+                      }
+                      className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1]"
                     >
-                      {menuCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                      {menuCategories.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
-                  <div className="flex flex-col">
-                    <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] mb-1">Name des Gerichts</label>
-                    <input 
-                      type="text" 
-                      required 
-                      value={menuForm.name} 
-                      onChange={(e) => setMenuForm({...menuForm, name: e.target.value})} 
-                      className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-sm" 
-                      placeholder="z.B. Avocado Sandwich" 
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] block mb-1">
+                      Name
+                    </label>
+                    <input
+                      required
+                      value={menuForm.name}
+                      onChange={(e) =>
+                        setMenuForm({ ...menuForm, name: e.target.value })
+                      }
+                      className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1]"
+                      placeholder="z.B. Cafe Crema"
                     />
                   </div>
 
-                  <div className="flex flex-col">
-                    <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] mb-1">Preis (€)</label>
-                    <input 
-                      type="text" 
-                      required 
-                      value={menuForm.price} 
-                      onChange={(e) => setMenuForm({...menuForm, price: e.target.value})} 
-                      className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-sm" 
-                      placeholder="z.B. 14.90" 
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] block mb-1">
+                      Hauptpreis (€)
+                    </label>
+                    <input
+                      required
+                      value={menuForm.price}
+                      onChange={(e) =>
+                        setMenuForm({ ...menuForm, price: e.target.value })
+                      }
+                      className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1]"
+                      placeholder="z.B. 3,50"
                     />
                   </div>
 
-                  <div className="flex flex-col">
-                    <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] mb-1">Beschreibung (Optional)</label>
-                    <textarea 
-                      rows={2} 
-                      value={menuForm.description} 
-                      onChange={(e) => setMenuForm({...menuForm, description: e.target.value})} 
-                      className="border-b border-gray-200 py-2.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-sm resize-none" 
-                      placeholder="Zutaten, Besonderheiten..." 
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0] block mb-1">
+                      Beschreibung
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={menuForm.description}
+                      onChange={(e) =>
+                        setMenuForm({ ...menuForm, description: e.target.value })
+                      }
+                      className="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-[#cda1b1] resize-none"
                     />
                   </div>
 
-                  <div className="flex items-center gap-3 pt-1 pb-1">
-                    <input 
-                      type="checkbox" 
+                  {/* SIZES */}
+                  <div className="border border-gray-200 rounded-2xl p-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <label className="text-[10px] uppercase tracking-widest text-[#a0a0a0]">
+                        Größen / Varianten
+                      </label>
+                      <button
+                        type="button"
+                        onClick={addSizeRow}
+                        className="text-xs font-bold text-[#cda1b1]"
+                      >
+                        + Größe hinzufügen
+                      </button>
+                    </div>
+
+                    {menuForm.sizes.length === 0 && (
+                      <p className="text-xs text-gray-400">Keine Größen – nur Hauptpreis wird verwendet</p>
+                    )}
+
+                    {menuForm.sizes.map((s, i) => (
+                      <div key={i} className="flex gap-2 mb-2 items-center">
+                        <input
+                          placeholder="Label (Normal / 0,25 l)"
+                          value={s.label}
+                          onChange={(e) => updateSizeRow(i, "label", e.target.value)}
+                          className="flex-1 border-b border-gray-200 py-1.5 text-sm focus:outline-none focus:border-[#cda1b1]"
+                        />
+                        <input
+                          placeholder="Preis"
+                          value={s.price}
+                          onChange={(e) => updateSizeRow(i, "price", e.target.value)}
+                          className="w-20 border-b border-gray-200 py-1.5 text-sm focus:outline-none focus:border-[#cda1b1]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeSizeRow(i)}
+                          className="text-red-400 text-lg font-bold px-1"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
                       id="isExtra"
-                      checked={menuForm.isExtra} 
-                      onChange={(e) => setMenuForm({...menuForm, isExtra: e.target.checked})} 
-                      className="w-5 h-5 text-[#cda1b1] border-gray-300 rounded focus:ring-[#cda1b1] cursor-pointer accent-[#cda1b1]" 
+                      checked={menuForm.isExtra}
+                      onChange={(e) =>
+                        setMenuForm({ ...menuForm, isExtra: e.target.checked })
+                      }
+                      className="w-5 h-5 accent-[#cda1b1]"
                     />
-                    <label htmlFor="isExtra" className="text-xs font-bold uppercase tracking-widest text-[#2d2d2d] cursor-pointer">
-                      Als Extra markieren (Kasten-Design)
+                    <label htmlFor="isExtra" className="text-xs font-bold uppercase tracking-widest">
+                      Als Extra markieren
                     </label>
                   </div>
 
-                  <button 
-                    type="submit" 
-                    className="w-full mt-2 bg-[#cda1b1] hover:bg-[#ebd2db] text-[#353941] py-4 rounded-full font-bold uppercase tracking-widest text-xs transition-colors active:scale-[0.98]"
+                  <button
+                    type="submit"
+                    className="w-full bg-[#cda1b1] hover:bg-[#ebd2db] text-[#353941] py-4 rounded-full font-bold uppercase tracking-widest text-xs"
                   >
-                    {editingId ? "Änderungen Speichern" : "Hinzufügen"}
+                    {editingId ? "Änderungen speichern" : "Gericht hinzufügen"}
                   </button>
                 </form>
               </motion.div>
             </div>
           )}
         </AnimatePresence>
-
       </main>
     </div>
   );

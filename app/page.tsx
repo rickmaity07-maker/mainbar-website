@@ -77,12 +77,10 @@ const acrosticPoem = [
 
 const shuffleArray = (array: any[]) => {
   const newArr = [...array];
-
   for (let i = newArr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
   }
-
   return newArr;
 };
 
@@ -103,7 +101,6 @@ const BackgroundVideo = ({
 
   useEffect(() => {
     const video = videoRef.current;
-
     if (!video) return;
 
     video.muted = true;
@@ -123,13 +120,7 @@ const BackgroundVideo = ({
     const handleInteraction = () => {
       if (videoBlocked && video) {
         video.muted = true;
-
-        video
-          .play()
-          .then(() => {
-            setVideoBlocked(false);
-          })
-          .catch(() => {});
+        video.play().then(() => setVideoBlocked(false)).catch(() => {});
       }
     };
 
@@ -158,29 +149,17 @@ const BackgroundVideo = ({
           preload="auto"
         />
       ) : (
-        <img
-          src={fallbackGif}
-          alt="Background fallback"
-          className={className}
-        />
+        <img src={fallbackGif} alt="Background fallback" className={className} />
       )}
     </>
   );
 };
 
-// Parses prices stored as "17,90", "17.90", or a plain number into a
-// sortable float, so the menu can be ordered high -> low regardless of
-// how the admin panel saved the value.
 const parsePrice = (price: any): number => {
   if (typeof price === "number") return price;
   if (!price) return 0;
-
-  const cleaned = String(price)
-    .replace(",", ".")
-    .replace(/[^0-9.]/g, "");
-
+  const cleaned = String(price).replace(",", ".").replace(/[^0-9.]/g, "");
   const value = parseFloat(cleaned);
-
   return isNaN(value) ? 0 : value;
 };
 
@@ -200,31 +179,21 @@ export default function UnifiedHomePage() {
   });
 
   const sliderRef = useRef<HTMLDivElement>(null);
-
-  // iOS Safari full-viewport lock.
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
 
   useEffect(() => {
     const update = () => {
       const h = window.visualViewport?.height ?? window.innerHeight;
-
       setViewportHeight(h);
-
-      document.documentElement.style.setProperty(
-        "--app-height",
-        `${h}px`
-      );
+      document.documentElement.style.setProperty("--app-height", `${h}px`);
     };
 
     update();
-
     const vv = window.visualViewport;
-
     if (vv) {
       vv.addEventListener("resize", update);
       vv.addEventListener("scroll", update);
     }
-
     window.addEventListener("resize", update);
     window.addEventListener("orientationchange", update);
 
@@ -234,12 +203,10 @@ export default function UnifiedHomePage() {
     return () => {
       clearTimeout(t);
       clearTimeout(t2);
-
       if (vv) {
         vv.removeEventListener("resize", update);
         vv.removeEventListener("scroll", update);
       }
-
       window.removeEventListener("resize", update);
       window.removeEventListener("orientationchange", update);
     };
@@ -247,7 +214,6 @@ export default function UnifiedHomePage() {
 
   useEffect(() => {
     const qMenu = query(collection(db, "menu"));
-
     const unsubMenu = onSnapshot(qMenu, (snapshot) => {
       setFirestoreMenuData(
         snapshot.docs.map((doc) => ({
@@ -256,89 +222,50 @@ export default function UnifiedHomePage() {
         }))
       );
     });
-
     return () => unsubMenu();
   }, []);
 
   useEffect(() => {
-    const qReviews = query(
-      collection(db, "reviews"),
-      orderBy("createdAt", "desc")
-    );
-
+    const qReviews = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
     const unsubReviews = onSnapshot(qReviews, (snapshot) => {
       let fetchedReviews: any[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data()
       }));
-
-      fetchedReviews = fetchedReviews.filter(
-        (r: any) => r.rating >= 3
-      );
-
+      fetchedReviews = fetchedReviews.filter((r: any) => r.rating >= 3);
       if (fetchedReviews.length > 0) {
         setReviews(shuffleArray(fetchedReviews));
       } else {
         setReviews(shuffleArray(fallbackReviews));
       }
     });
-
     return () => unsubReviews();
   }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (sliderRef.current) {
-        const {
-          scrollLeft,
-          scrollWidth,
-          clientWidth
-        } = sliderRef.current;
-
+        const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
         if (scrollLeft + clientWidth >= scrollWidth - 10) {
-          sliderRef.current.scrollTo({
-            left: 0,
-            behavior: "smooth"
-          });
+          sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
         } else {
-          sliderRef.current.scrollBy({
-            left: 320,
-            behavior: "smooth"
-          });
+          sliderRef.current.scrollBy({ left: 320, behavior: "smooth" });
         }
       }
     }, 4000);
-
     return () => clearInterval(interval);
   }, []);
 
-  // Bulletproof isExtra check
   const isExtraItem = (val: any) =>
     val === true || String(val).toLowerCase() === "true";
 
-  // Regular dishes for the active tab
   const mainItems = firestoreMenuData
-    .filter(
-      (item: any) =>
-        item.category === activeTab &&
-        !isExtraItem(item.isExtra)
-    )
-    .sort(
-      (a: any, b: any) =>
-        parsePrice(b.price) - parsePrice(a.price)
-    );
+    .filter((item: any) => item.category === activeTab && !isExtraItem(item.isExtra))
+    .sort((a: any, b: any) => parsePrice(b.price) - parsePrice(a.price));
 
-  // Items flagged as "extra"
   const activeExtras = firestoreMenuData
-    .filter(
-      (item: any) =>
-        item.category === activeTab &&
-        isExtraItem(item.isExtra)
-    )
-    .sort(
-      (a: any, b: any) =>
-        parsePrice(b.price) - parsePrice(a.price)
-    );
+    .filter((item: any) => item.category === activeTab && isExtraItem(item.isExtra))
+    .sort((a: any, b: any) => parsePrice(b.price) - parsePrice(a.price));
 
   useEffect(() => {
     setCurrentMenuImage(defaultTabImages[activeTab] || null);
@@ -346,12 +273,8 @@ export default function UnifiedHomePage() {
 
   const scrollToMenu = () => {
     const menuSection = document.getElementById("menu-section");
-
     if (menuSection) {
-      const targetY =
-        menuSection.getBoundingClientRect().top +
-        window.scrollY;
-
+      const targetY = menuSection.getBoundingClientRect().top + window.scrollY;
       animate(window.scrollY, targetY, {
         duration: 1.2,
         ease: [0.16, 1, 0.3, 1],
@@ -363,7 +286,6 @@ export default function UnifiedHomePage() {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       await addDoc(collection(db, "reviews"), {
         author: reviewForm.author,
@@ -371,15 +293,8 @@ export default function UnifiedHomePage() {
         rating: reviewForm.rating,
         createdAt: new Date().toISOString()
       });
-
       setIsReviewFormOpen(false);
-
-      setReviewForm({
-        author: "",
-        text: "",
-        rating: 5
-      });
-
+      setReviewForm({ author: "", text: "", rating: 5 });
       alert("Vielen Dank für deine Bewertung!");
     } catch (error) {
       console.error("Fehler beim Speichern der Bewertung:", error);
@@ -389,25 +304,38 @@ export default function UnifiedHomePage() {
     }
   };
 
+  // Helper to render price / sizes
+  const renderPrice = (item: any) => {
+    if (item.sizes && Array.isArray(item.sizes) && item.sizes.length > 0) {
+      return (
+        <div className="flex flex-col items-end gap-0.5">
+          {item.sizes.map((s: any, idx: number) => (
+            <span key={idx} className="font-bold text-[#cda1b1] text-sm md:text-base whitespace-nowrap">
+              {s.label && <span className="text-[#a0a0a0] font-normal mr-1.5 text-xs">{s.label}</span>}
+              € {s.price}
+            </span>
+          ))}
+        </div>
+      );
+    }
+    return (
+      <span className="font-bold text-[#cda1b1] text-base md:text-lg whitespace-nowrap">
+        € {item.price}
+      </span>
+    );
+  };
+
   return (
     <main className="flex flex-col min-h-screen w-full bg-[#1c1a1d] relative selection:bg-[#cda1b1] selection:text-white">
 
-      {/* ================================================================
-          FLOATING REVIEW WIDGET
-      ================================================================ */}
+      {/* FLOATING REVIEW WIDGET */}
       <div className="absolute top-6 left-6 md:top-8 md:left-8 z-50">
         <button
-          onClick={() =>
-            setIsReviewFormOpen(!isReviewFormOpen)
-          }
+          onClick={() => setIsReviewFormOpen(!isReviewFormOpen)}
           className="flex items-center gap-2 bg-[#1c1a1d]/80 backdrop-blur-md border border-[#cda1b1]/30 text-white px-5 py-3 rounded-full shadow-2xl hover:bg-[#cda1b1] hover:text-[#1c1a1d] transition-all duration-500 group"
         >
-          <span className="text-[#cda1b1] group-hover:text-[#1c1a1d] text-lg leading-none transition-colors">
-            ★
-          </span>
-          <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase mt-0.5">
-            Bewerte uns
-          </span>
+          <span className="text-[#cda1b1] group-hover:text-[#1c1a1d] text-lg leading-none transition-colors">★</span>
+          <span className="text-[10px] md:text-xs font-bold tracking-widest uppercase mt-0.5">Bewerte uns</span>
         </button>
 
         <AnimatePresence>
@@ -420,15 +348,8 @@ export default function UnifiedHomePage() {
               className="absolute top-full left-0 mt-4 w-[calc(100vw-3rem)] max-w-85 bg-white rounded-3xl p-6 shadow-2xl border border-gray-100 origin-top-left"
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-serif text-xl text-[#2d2d2d]">
-                  Wie war dein Besuch?
-                </h3>
-                <button
-                  onClick={() => setIsReviewFormOpen(false)}
-                  className="text-gray-400 hover:text-red-500 text-xl font-bold"
-                >
-                  ×
-                </button>
+                <h3 className="font-serif text-xl text-[#2d2d2d]">Wie war dein Besuch?</h3>
+                <button onClick={() => setIsReviewFormOpen(false)} className="text-gray-400 hover:text-red-500 text-xl font-bold">×</button>
               </div>
 
               <form onSubmit={handleReviewSubmit} className="space-y-4">
@@ -437,13 +358,9 @@ export default function UnifiedHomePage() {
                     <button
                       key={star}
                       type="button"
-                      onClick={() =>
-                        setReviewForm({ ...reviewForm, rating: star })
-                      }
+                      onClick={() => setReviewForm({ ...reviewForm, rating: star })}
                       className={`text-3xl outline-none transition-colors ${
-                        reviewForm.rating >= star
-                          ? "text-yellow-400"
-                          : "text-gray-200 hover:text-yellow-200"
+                        reviewForm.rating >= star ? "text-yellow-400" : "text-gray-200 hover:text-yellow-200"
                       }`}
                     >
                       ★
@@ -456,9 +373,7 @@ export default function UnifiedHomePage() {
                     type="text"
                     required
                     value={reviewForm.author}
-                    onChange={(e) =>
-                      setReviewForm({ ...reviewForm, author: e.target.value })
-                    }
+                    onChange={(e) => setReviewForm({ ...reviewForm, author: e.target.value })}
                     className="border-b border-gray-200 py-1.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-xs"
                     placeholder="Dein Vorname"
                   />
@@ -469,9 +384,7 @@ export default function UnifiedHomePage() {
                     rows={3}
                     required
                     value={reviewForm.text}
-                    onChange={(e) =>
-                      setReviewForm({ ...reviewForm, text: e.target.value })
-                    }
+                    onChange={(e) => setReviewForm({ ...reviewForm, text: e.target.value })}
                     className="border-b border-gray-200 py-1.5 focus:outline-none focus:border-[#cda1b1] text-[#2d2d2d] text-xs resize-none"
                     placeholder="Deine Bewertung"
                   />
@@ -490,10 +403,7 @@ export default function UnifiedHomePage() {
         </AnimatePresence>
       </div>
 
-      {/* ================================================================
-          HERO SECTION
-      ================================================================ */}
-
+      {/* HERO SECTION */}
       <section
         className="relative z-0 w-full flex items-center justify-center overflow-hidden"
         style={{
@@ -511,7 +421,6 @@ export default function UnifiedHomePage() {
         </div>
 
         <div className="relative z-20 w-full h-full flex">
-          {/* LEFT – Branding */}
           <div className="w-full lg:w-1/2 h-full flex flex-col items-center justify-center text-center px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -568,7 +477,6 @@ export default function UnifiedHomePage() {
             <div className="h-40 w-px bg-linear-to-b from-transparent via-[#cda1b1]/60 to-transparent"></div>
           </div>
 
-          {/* RIGHT – Poem */}
           <div className="hidden lg:flex w-1/2 h-full items-center justify-center relative">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -601,10 +509,7 @@ export default function UnifiedHomePage() {
         </div>
       </section>
 
-      {/* ================================================================
-          REVIEWS SECTION
-      ================================================================ */}
-
+      {/* REVIEWS SECTION */}
       <section className="py-16 md:py-24 bg-[#faf8f5] overflow-hidden border-b border-gray-200/50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 md:mb-16 px-6">
@@ -650,22 +555,13 @@ export default function UnifiedHomePage() {
         </div>
       </section>
 
-      {/* ================================================================
-          ELEGANT MENU SECTION
-          Fixed: Removed 'overflow-hidden' from section so sticky works!
-      ================================================================ */}
-
+      {/* MENU SECTION */}
       <section
         id="menu-section"
         className="min-h-screen bg-white px-4 md:px-6 py-16 md:py-24 relative overflow-x-clip"
       >
-        {/* ============================================================
-            MOBILE / TABLET BACKGROUND IMAGE (Visible below xl)
-        ================================================================ */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 xl:hidden z-0"
-        >
+        {/* Background images (mobile + desktop) – same as your original */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 xl:hidden z-0">
           <div className="sticky top-0 w-full h-[100dvh]">
             <div
               className="absolute inset-0 bg-cover bg-center opacity-[0.35]"
@@ -679,13 +575,7 @@ export default function UnifiedHomePage() {
           </div>
         </div>
 
-        {/* ============================================================
-            LEFT MARGIN BACKGROUND IMAGE (Desktop)
-        ================================================================ */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-0 top-0 bottom-0 w-[25vw] max-w-[420px] hidden xl:block z-0"
-        >
+        <div aria-hidden="true" className="pointer-events-none absolute left-0 top-0 bottom-0 w-[25vw] max-w-[420px] hidden xl:block z-0">
           <div className="sticky top-0 w-full h-screen">
             <div
               className="absolute inset-0 bg-cover bg-center opacity-[0.30]"
@@ -700,13 +590,7 @@ export default function UnifiedHomePage() {
           </div>
         </div>
 
-        {/* ============================================================
-            RIGHT MARGIN BACKGROUND IMAGE (Desktop)
-        ================================================================ */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute right-0 top-0 bottom-0 w-[25vw] max-w-[420px] hidden xl:block z-0"
-        >
+        <div aria-hidden="true" className="pointer-events-none absolute right-0 top-0 bottom-0 w-[25vw] max-w-[420px] hidden xl:block z-0">
           <div className="sticky top-0 w-full h-screen">
             <div
               className="absolute inset-0 bg-cover bg-center opacity-[0.30]"
@@ -721,15 +605,6 @@ export default function UnifiedHomePage() {
           </div>
         </div>
 
-        {/* ============================================================
-            SUBTLE DECORATIVE SIDE LINES
-        ================================================================ */}
-        <div aria-hidden="true" className="pointer-events-none absolute left-[7vw] top-[22%] hidden xl:block w-20 h-px bg-[#cda1b1]/20 rotate-90 z-0" />
-        <div aria-hidden="true" className="pointer-events-none absolute right-[7vw] top-[38%] hidden xl:block w-28 h-px bg-[#cda1b1]/20 rotate-90 z-0" />
-
-        {/* ============================================================
-            EXISTING MENU CONTENT
-        ================================================================ */}
         <div className="max-w-4xl mx-auto relative z-10">
           <div className="text-center mb-10 md:mb-16">
             <h2 className="font-serif text-4xl md:text-5xl text-[#2d2d2d] mb-4 md:mb-6">
@@ -771,8 +646,6 @@ export default function UnifiedHomePage() {
               <div aria-hidden="true" className="pointer-events-none select-none absolute -bottom-10 -right-10 font-(family-name:--font-great-vibes) text-[10rem] md:text-[14rem] text-[#cda1b1]/6 leading-none -rotate-6 z-0">
                 MainBar
               </div>
-              <div aria-hidden="true" className="pointer-events-none absolute -top-16 -left-16 w-64 h-64 rounded-full border border-[#cda1b1]/15 z-0" />
-              <div aria-hidden="true" className="pointer-events-none absolute -top-10 -left-10 w-48 h-48 rounded-full border border-[#cda1b1]/20 z-0" />
 
               {currentMenuImage && (
                 <motion.div
@@ -800,17 +673,18 @@ export default function UnifiedHomePage() {
                   <>
                     {mainItems.map((item: any) => (
                       <div key={item.id} className="mb-7 md:mb-9 group">
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline border-b border-gray-300/50 pb-2 mb-2 gap-1 sm:gap-4">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start border-b border-gray-300/50 pb-2 mb-2 gap-2 sm:gap-4">
                           <h3 className="font-serif text-lg md:text-xl text-[#2d2d2d] group-hover:text-[#cda1b1] transition-colors flex items-center gap-2.5">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 md:w-5 md:h-5 text-[#d66a7a] opacity-80 shrink-0">
                               <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                             </svg>
                             {item.name}
                           </h3>
-                          <span className="font-bold text-[#cda1b1] text-base md:text-lg whitespace-nowrap pl-6 sm:pl-0">
-                            € {item.price}
-                          </span>
+
+                          {/* ===== UPDATED PRICE / SIZES RENDER ===== */}
+                          {renderPrice(item)}
                         </div>
+
                         {item.description && (
                           <p className="text-sm md:text-base text-[#808080] leading-relaxed font-light pl-6 md:pr-12 md:pl-7.5">
                             {item.description}
@@ -850,16 +724,11 @@ export default function UnifiedHomePage() {
         </div>
       </section>
 
-      {/* ================================================================
-          FOOTER
-      ================================================================ */}
-
+      {/* FOOTER – identical to your original */}
       <footer className="bg-[#1c1a1d] text-white py-16 px-6 md:px-12 border-t border-[#cda1b1]/20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="flex flex-col items-center md:items-start">
-            <h2 className="font-(family-name:--font-great-vibes) text-5xl text-[#cda1b1] mb-4">
-              MainBar
-            </h2>
+            <h2 className="font-(family-name:--font-great-vibes) text-5xl text-[#cda1b1] mb-4">MainBar</h2>
             <p className="text-[#a0a0a0] text-sm leading-relaxed text-center md:text-left">
               Qualität ist das Produkt
               <br />
@@ -868,13 +737,9 @@ export default function UnifiedHomePage() {
           </div>
 
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <h3 className="text-xs tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">
-              Besuchen Sie uns
-            </h3>
+            <h3 className="text-xs tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">Besuchen Sie uns</h3>
             <a href="https://www.google.com/maps/search/?api=1&query=Spitalstra%C3%9Fe%2019%2C%2097421%20Schweinfurt" target="_blank" rel="noopener noreferrer" className="text-base text-gray-300 hover:text-[#cda1b1] mb-3 transition-colors">
-              Spitalstraße 19
-              <br />
-              97421 Schweinfurt
+              Spitalstraße 19<br />97421 Schweinfurt
             </a>
             <a href="tel:+491702278096" className="text-base text-gray-300 hover:text-[#cda1b1] transition-colors">
               +49 170 2278096
@@ -882,18 +747,14 @@ export default function UnifiedHomePage() {
           </div>
 
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <h3 className="text-xs tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">
-              Öffnungszeiten
-            </h3>
+            <h3 className="text-xs tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">Öffnungszeiten</h3>
             <p className="text-base text-gray-300 mb-2">Mo: Ruhetag</p>
             <p className="text-base text-gray-300 mb-2">Di - Sa: 09:30 - 18:00 Uhr</p>
             <p className="text-base text-gray-300">Sonn- u. Feiertage: 10:00 - 18:00 Uhr</p>
           </div>
 
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <h3 className="text-xs tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">
-              Social Media
-            </h3>
+            <h3 className="text-xs tracking-[0.2em] uppercase text-[#cda1b1] font-bold mb-6">Social Media</h3>
             <a href="https://www.instagram.com/mainbar_sw/" target="_blank" rel="noopener noreferrer" className="text-base text-gray-300 hover:text-[#cda1b1] transition-colors flex items-center gap-2 group">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform">
                 <rect width="20" height="20" x="2" y="2" rx="5" />
@@ -910,19 +771,13 @@ export default function UnifiedHomePage() {
             © {new Date().getFullYear()} MainBar Schweinfurt
           </p>
           <div className="flex gap-6">
-            <Link href="/impressum" className="text-xs text-[#a0a0a0] hover:text-white uppercase tracking-widest transition-colors">
-              Impressum
-            </Link>
-            <Link href="/datenschutz" className="text-xs text-[#a0a0a0] hover:text-white uppercase tracking-widest transition-colors">
-              Datenschutz
-            </Link>
+            <Link href="/impressum" className="text-xs text-[#a0a0a0] hover:text-white uppercase tracking-widest transition-colors">Impressum</Link>
+            <Link href="/datenschutz" className="text-xs text-[#a0a0a0] hover:text-white uppercase tracking-widest transition-colors">Datenschutz</Link>
           </div>
         </div>
       </footer>
 
-      <Link href="/admin" className="absolute bottom-0 right-0 w-16 h-16 bg-transparent text-transparent cursor-default select-none z-0" tabIndex={-1} aria-hidden="true">
-        .
-      </Link>
+      <Link href="/admin" className="absolute bottom-0 right-0 w-16 h-16 bg-transparent text-transparent cursor-default select-none z-0" tabIndex={-1} aria-hidden="true">.</Link>
     </main>
   );
 }
