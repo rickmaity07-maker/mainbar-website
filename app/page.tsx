@@ -562,7 +562,7 @@ export default function UnifiedHomePage() {
       >
         {/* Background images (mobile + desktop) – same as your original */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 xl:hidden z-0">
-          <div className="sticky top-0 w-full h-[100dvh]">
+          <div className="sticky top-0 w-full h-dvh">
             <div
               className="absolute inset-0 bg-cover bg-center opacity-[0.35]"
               style={{
@@ -571,11 +571,11 @@ export default function UnifiedHomePage() {
                 transition: "background-image 0.7s ease-in-out"
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-white via-white/10 to-white" />
+            <div className="absolute inset-0 bg-linear-to-b from-white via-white/10 to-white" />
           </div>
         </div>
 
-        <div aria-hidden="true" className="pointer-events-none absolute left-0 top-0 bottom-0 w-[25vw] max-w-[420px] hidden xl:block z-0">
+        <div aria-hidden="true" className="pointer-events-none absolute left-0 top-0 bottom-0 w-[25vw] max-w-105 hidden xl:block z-0">
           <div className="sticky top-0 w-full h-screen">
             <div
               className="absolute inset-0 bg-cover bg-center opacity-[0.30]"
@@ -585,12 +585,12 @@ export default function UnifiedHomePage() {
                 transition: "background-image 0.7s ease-in-out"
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-white" />
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-white" />
             <div className="absolute inset-0 bg-white/20" />
           </div>
         </div>
 
-        <div aria-hidden="true" className="pointer-events-none absolute right-0 top-0 bottom-0 w-[25vw] max-w-[420px] hidden xl:block z-0">
+        <div aria-hidden="true" className="pointer-events-none absolute right-0 top-0 bottom-0 w-[25vw] max-w-105 hidden xl:block z-0">
           <div className="sticky top-0 w-full h-screen">
             <div
               className="absolute inset-0 bg-cover bg-center opacity-[0.30]"
@@ -600,7 +600,7 @@ export default function UnifiedHomePage() {
                 transition: "background-image 0.7s ease-in-out"
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-white" />
+            <div className="absolute inset-0 bg-linear-to-l from-transparent via-white/20 to-white" />
             <div className="absolute inset-0 bg-white/20" />
           </div>
         </div>
@@ -652,8 +652,7 @@ export default function UnifiedHomePage() {
                   initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
                   animate={{ opacity: 1, scale: 1, rotate: 3 }}
                   transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 20 }}
-                  className="hidden md:block absolute -top-8 -right-8 w-48 h-48 rounded-2xl overflow-hidden shadow-xl border-4 border-white z-20 pointer-events-none"
-                >
+className="hidden md:block absolute -top-8 -right-8 w-48 h-48 rounded-[40%_0_0_80%] overflow-hidden shadow-xl border-4 border-white z-20 pointer-events-none"                >
                   <Image
                     src={currentMenuImage}
                     alt={`${activeTab} Highlight`}
